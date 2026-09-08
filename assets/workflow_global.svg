@@ -1,0 +1,183 @@
+<svg viewBox="0 0 980 1580" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+    <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#0f172a" flood-opacity="0.12"></feDropShadow>
+  </filter>
+  <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
+    <path d="M0,0 L10,5 L0,10 Z" fill="#94a3b8"></path>
+  </marker>
+</defs>
+
+
+<rect x="0" y="0" width="980" height="1580" fill="#ffffff"></rect>
+
+
+<text x="490" y="38" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="26" font-weight="800" fill="#0f172a">Untargeted Metabolomics Pipeline Architecture</text>
+<text x="490" y="62" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13.5" fill="#64748b">From .mzML acquisition to statistical insight — dual preprocessing options</text>
+
+
+<rect x="80" y="90" width="820" height="52" rx="14" fill="#f1f5f9" stroke="#334155" stroke-width="2" filter="url(#shadow)"></rect>
+<text x="490" y="112" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#334155">.mzML Data Files</text>
+<text x="490" y="130" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#64748b">LC-MS / LC-MS/MS acquisition output (centroided)</text>
+
+
+<line x1="490" y1="142" x2="490" y2="172" stroke="#cbd5e1" stroke-width="3" marker-end="url(#arrowhead)"></line>
+
+
+<rect x="40" y="172" width="900" height="520" rx="18" fill="#eef2ff" stroke="#4f46e5" stroke-width="2" filter="url(#shadow)"></rect>
+
+
+<circle cx="74" cy="202" r="16" fill="#4f46e5"></circle>
+<text x="74" y="207" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" font-weight="800" fill="#ffffff">1</text>
+<text x="100" y="198" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="16" font-weight="800" fill="#4f46e5">Preprocessing</text>
+<text x="100" y="216" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#64748b">Choose one of the two alternative feature-finding workflows</text>
+
+
+<rect x="60" y="236" width="420" height="430" rx="14" fill="#ffffff" stroke="#6366f1" stroke-width="1.8"></rect>
+<rect x="60" y="236" width="420" height="38" rx="14" fill="#6366f1"></rect>
+<text x="270" y="260" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" font-weight="700" fill="#ffffff">XCMS (R package — local)</text>
+
+
+<rect x="78" y="288" width="384" height="34" rx="8" fill="#f8fafc" stroke="#c7d2fe" stroke-width="1.2"></rect>
+<text x="270" y="310" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="600" fill="#1e293b">1. Peak Picking</text>
+
+<rect x="78" y="332" width="384" height="34" rx="8" fill="#f8fafc" stroke="#c7d2fe" stroke-width="1.2"></rect>
+<text x="270" y="354" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="600" fill="#1e293b">2. Retention-Time Alignment</text>
+
+<rect x="78" y="376" width="384" height="34" rx="8" fill="#f8fafc" stroke="#c7d2fe" stroke-width="1.2"></rect>
+<text x="270" y="398" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="600" fill="#1e293b">3. Grouping / Correspondence</text>
+
+<rect x="78" y="420" width="384" height="34" rx="8" fill="#f8fafc" stroke="#c7d2fe" stroke-width="1.2"></rect>
+<text x="270" y="442" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="600" fill="#1e293b">4. Gap Filling</text>
+
+<rect x="78" y="464" width="384" height="34" rx="8" fill="#f8fafc" stroke="#c7d2fe" stroke-width="1.2"></rect>
+<text x="270" y="486" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="600" fill="#1e293b">5. Adduct &amp; Isotope Annotation</text>
+
+<text x="270" y="530" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#64748b">Classic sequential workflow</text>
+<text x="270" y="548" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#64748b">Requires parameter tuning</text>
+<text x="270" y="566" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#64748b">Runs entirely in R (local)</text>
+
+
+<rect x="500" y="236" width="420" height="430" rx="14" fill="#ffffff" stroke="#0ea5e9" stroke-width="1.8"></rect>
+<rect x="500" y="236" width="420" height="38" rx="14" fill="#0ea5e9"></rect>
+<text x="710" y="260" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="700" fill="#ffffff">GNPS2 : Everything Bagel (local or online)</text>
+
+
+<rect x="518" y="288" width="384" height="34" rx="8" fill="#f0f9ff" stroke="#7dd3fc" stroke-width="1.2"></rect>
+<text x="710" y="310" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="600" fill="#1e293b">1. Automated Parameter Optimization</text>
+
+<rect x="518" y="332" width="384" height="34" rx="8" fill="#f0f9ff" stroke="#7dd3fc" stroke-width="1.2"></rect>
+<text x="710" y="354" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="600" fill="#1e293b">2. Feature Detection (ROI + segmentation)</text>
+
+<rect x="518" y="376" width="384" height="34" rx="8" fill="#f0f9ff" stroke="#7dd3fc" stroke-width="1.2"></rect>
+<text x="710" y="398" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="600" fill="#1e293b">3. Linear RT Correction + Alignment</text>
+
+<rect x="518" y="420" width="384" height="34" rx="8" fill="#f0f9ff" stroke="#7dd3fc" stroke-width="1.2"></rect>
+<text x="710" y="442" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="600" fill="#1e293b">4. Gap Filling</text>
+
+<rect x="518" y="464" width="384" height="34" rx="8" fill="#f0f9ff" stroke="#7dd3fc" stroke-width="1.2"></rect>
+<text x="710" y="486" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="600" fill="#1e293b">5. Feature Grouping (isotope / adduct / ISF)</text>
+
+<rect x="518" y="508" width="384" height="34" rx="8" fill="#f0f9ff" stroke="#7dd3fc" stroke-width="1.2"></rect>
+<text x="710" y="530" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="600" fill="#1e293b">6. MS/MS Assignment to features</text>
+
+<text x="710" y="560" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#64748b">Fully automated • ultra-fast (Rust)</text>
+<text x="710" y="578" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#64748b">Local CLI / Desktop app / GNPS2 web</text>
+<text x="710" y="596" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#64748b">3 modes: rare / reproducible / standard</text>
+
+
+<line x1="490" y1="692" x2="490" y2="722" stroke="#cbd5e1" stroke-width="3" marker-end="url(#arrowhead)"></line>
+
+
+<rect x="40" y="722" width="900" height="110" rx="18" fill="#f5f3ff" stroke="#7c3aed" stroke-width="2" filter="url(#shadow)"></rect>
+<circle cx="74" cy="752" r="16" fill="#7c3aed"></circle>
+<text x="74" y="757" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" font-weight="800" fill="#ffffff">2</text>
+<text x="100" y="748" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="16" font-weight="800" fill="#7c3aed">MS2 Consensus Spectra</text>
+<text x="100" y="766" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#64748b">Processing fragmentation data</text>
+
+<rect x="70" y="784" width="840" height="32" rx="8" fill="#ffffff" stroke="#7c3aed" stroke-width="1.5"></rect>
+<text x="490" y="805" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#1e293b">MS2 Spectra Export &amp; Consensus Building  •  Per-feature merging of MS/MS scans for annotation</text>
+
+
+<line x1="490" y1="832" x2="490" y2="862" stroke="#cbd5e1" stroke-width="3" marker-end="url(#arrowhead)"></line>
+
+
+<rect x="40" y="862" width="900" height="280" rx="18" fill="#f0fdfa" stroke="#0d9488" stroke-width="2" filter="url(#shadow)"></rect>
+<circle cx="74" cy="892" r="16" fill="#0d9488"></circle>
+<text x="74" y="897" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" font-weight="800" fill="#ffffff">3</text>
+<text x="100" y="888" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="16" font-weight="800" fill="#0d9488">Processing</text>
+<text x="100" y="906" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#64748b">Data cleaning &amp; normalization</text>
+
+
+<rect x="60" y="924" width="280" height="32" rx="7" fill="#ffffff" stroke="#0d9488" stroke-width="1.3"></rect>
+<text x="200" y="945" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#1e293b">1. Quality Control</text>
+
+<rect x="350" y="924" width="280" height="32" rx="7" fill="#ffffff" stroke="#0d9488" stroke-width="1.3"></rect>
+<text x="490" y="945" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#1e293b">2. RT Filter</text>
+
+<rect x="640" y="924" width="280" height="32" rx="7" fill="#ffffff" stroke="#0d9488" stroke-width="1.3"></rect>
+<text x="780" y="945" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#1e293b">3. Sample Outlier Exclusion</text>
+
+<rect x="60" y="968" width="280" height="32" rx="7" fill="#ffffff" stroke="#0d9488" stroke-width="1.3"></rect>
+<text x="200" y="989" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#1e293b">4. Missing Value Filter</text>
+
+<rect x="350" y="968" width="280" height="32" rx="7" fill="#ffffff" stroke="#0d9488" stroke-width="1.3"></rect>
+<text x="490" y="989" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#1e293b">5. Missing Value Imputation</text>
+
+<rect x="640" y="968" width="280" height="32" rx="7" fill="#ffffff" stroke="#0d9488" stroke-width="1.3"></rect>
+<text x="780" y="989" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#1e293b">6. Exploratory CV</text>
+
+<rect x="60" y="1012" width="280" height="32" rx="7" fill="#ffffff" stroke="#0d9488" stroke-width="1.3"></rect>
+<text x="200" y="1033" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#1e293b">7. Intra-Batch Drift Correction</text>
+
+<rect x="350" y="1012" width="280" height="32" rx="7" fill="#ffffff" stroke="#0d9488" stroke-width="1.3"></rect>
+<text x="490" y="1033" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#1e293b">8. Normalization</text>
+
+<rect x="640" y="1012" width="280" height="32" rx="7" fill="#ffffff" stroke="#0d9488" stroke-width="1.3"></rect>
+<text x="780" y="1033" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#1e293b">9. Validation CV</text>
+
+<rect x="60" y="1056" width="280" height="32" rx="7" fill="#ffffff" stroke="#0d9488" stroke-width="1.3"></rect>
+<text x="200" y="1077" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#1e293b">10. Data Transformation</text>
+
+<rect x="350" y="1056" width="280" height="32" rx="7" fill="#ffffff" stroke="#0d9488" stroke-width="1.3"></rect>
+<text x="490" y="1077" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#1e293b">11. Data Scaling</text>
+
+
+<line x1="490" y1="1142" x2="490" y2="1172" stroke="#cbd5e1" stroke-width="3" marker-end="url(#arrowhead)"></line>
+
+
+<rect x="40" y="1172" width="900" height="100" rx="18" fill="#fffbeb" stroke="#d97706" stroke-width="2" filter="url(#shadow)"></rect>
+<circle cx="74" cy="1202" r="16" fill="#d97706"></circle>
+<text x="74" y="1207" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" font-weight="800" fill="#ffffff">4</text>
+<text x="100" y="1198" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="16" font-weight="800" fill="#d97706">Annotation</text>
+<text x="100" y="1216" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#64748b">Metabolite identification</text>
+
+<rect x="70" y="1232" width="840" height="28" rx="7" fill="#ffffff" stroke="#d97706" stroke-width="1.5"></rect>
+<text x="490" y="1251" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#1e293b">Compound &amp; Metabolite Annotation  •  In-house Library • GNPS2 • Compound Discoverer</text>
+
+
+<line x1="490" y1="1272" x2="490" y2="1302" stroke="#cbd5e1" stroke-width="3" marker-end="url(#arrowhead)"></line>
+
+
+<rect x="40" y="1302" width="900" height="120" rx="18" fill="#fdf2f8" stroke="#db2777" stroke-width="2" filter="url(#shadow)"></rect>
+<circle cx="74" cy="1332" r="16" fill="#db2777"></circle>
+<text x="74" y="1337" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" font-weight="800" fill="#ffffff">5</text>
+<text x="100" y="1328" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="16" font-weight="800" fill="#db2777">Statistical Analysis</text>
+<text x="100" y="1346" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#64748b">Group comparison &amp; pattern discovery</text>
+
+<rect x="70" y="1364" width="420" height="40" rx="8" fill="#ffffff" stroke="#db2777" stroke-width="1.5"></rect>
+<text x="280" y="1380" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#1e293b">1. Unsupervised Analysis</text>
+<text x="280" y="1396" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#64748b">PCA • HCPC • Heatmap</text>
+
+<rect x="510" y="1364" width="410" height="40" rx="8" fill="#ffffff" stroke="#db2777" stroke-width="1.5"></rect>
+<text x="715" y="1380" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#1e293b">2. Supervised Analysis</text>
+<text x="715" y="1396" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#64748b">Random Forest • PLS-DA / OPLS-DA • Volcano</text>
+
+
+<line x1="490" y1="1422" x2="490" y2="1452" stroke="#cbd5e1" stroke-width="3" marker-end="url(#arrowhead)"></line>
+
+<rect x="80" y="1452" width="820" height="52" rx="14" fill="#f1f5f9" stroke="#334155" stroke-width="2" filter="url(#shadow)"></rect>
+<text x="490" y="1474" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#334155">Biological Interpretation</text>
+<text x="490" y="1492" text-anchor="middle" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#64748b">Actionable metabolomics insights</text>
+
+</svg>
