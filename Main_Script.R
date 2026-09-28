@@ -342,7 +342,13 @@ if(!isTRUE(preprocessing_method_choice_res$is_EB)){
   
   # Function
   
-  find_adducts_result <- find_adducts(xdata_filled, data_folder, param_folder, blank_names)
+  find_adducts_result <- find_adducts(
+    xdata_filled = xdata_filled,
+    data_folder = data_folder,
+    param_folder = param_folder,
+    blank_names = blank_names,
+    qc_names = qc_names, use_shiny = T
+  )
   
   # Results
   
@@ -525,7 +531,7 @@ if (!is.null(RT_results)) {
 # Function
 
 Blank_Filtering_results <- filter_by_blank(step_df, blank_names, bio_names, qc_names,
-                            param_folder, data_folder)
+                                           param_folder, data_folder)
 
 if (!is.null(Blank_Filtering_results)) {
   step_df <- Blank_Filtering_results$data
@@ -543,8 +549,8 @@ standard_intensity_injection <- plot_standard_intensity_injection(input_data = s
                                                                   standards = standards, 
                                                                   param_folder = param_folder, 
                                                                   data_folder = data_folder)
-  
-  
+
+
 ##########################################################################################################
 #####################     Quality Control : Total Intensity (after Pre-Processing)     ###################
 
@@ -563,7 +569,7 @@ quali_contr_pre_process_results <- plot_total_intensity_injection(
 
 ##########################################################################################################
 ########################### Filtering of samples known as “extreme outliers”  ############################
-  
+
 # Function
 
 outlier_results <- filter_sample_outliers(
@@ -610,7 +616,7 @@ if (!is.null(miss_val_results)) {
 
 ##########################################################################################################
 ##################################    Imputation of missing values    ####################################
-  
+
 # Function
 
 imputation_results <- perform_imputation(
@@ -803,7 +809,7 @@ if (!is.null(outlier_results2)) {
 
 ##########################################################################################################
 #####################################    Data transformation   ###########################################
-  
+
 # Function
 
 transformation_results <- perform_data_transformation(

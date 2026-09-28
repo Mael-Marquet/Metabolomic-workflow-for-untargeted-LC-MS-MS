@@ -33,59 +33,59 @@ create_metadata_example <- function(metadata_folder) {
                        "2025", "2025", "2025", "2025"),
     
     MassSpectrometer = c("Q Exactive Plus|MS:1002634", "Q Exactive Plus|MS:1002634", "Q Exactive Plus|MS:1002634", "Q Exactive Plus|MS:1002634", "Q Exactive Plus|MS:1002634",
-                       "Q Exactive Plus|MS:1002634", "Q Exactive Plus|MS:1002634", "Q Exactive Plus|MS:1002634", "Q Exactive Plus|MS:1002634", "Q Exactive Plus|MS:1002634",
-                       "Q Exactive Plus|MS:1002634", "Q Exactive Plus|MS:1002634", "Q Exactive Plus|MS:1002634", "Q Exactive Plus|MS:1002634", "Q Exactive Plus|MS:1002634",
-                       "Q Exactive Plus|MS:1002634", "Q Exactive Plus|MS:1002634", "Q Exactive Plus|MS:1002634", "Q Exactive Plus|MS:1002634", "Q Exactive Plus|MS:1002634",
-                       "Q Exactive Plus|MS:1002634", "Q Exactive Plus|MS:1002634", "Q Exactive Plus|MS:1002634", "Q Exactive Plus|MS:1002634"),
+                         "Q Exactive Plus|MS:1002634", "Q Exactive Plus|MS:1002634", "Q Exactive Plus|MS:1002634", "Q Exactive Plus|MS:1002634", "Q Exactive Plus|MS:1002634",
+                         "Q Exactive Plus|MS:1002634", "Q Exactive Plus|MS:1002634", "Q Exactive Plus|MS:1002634", "Q Exactive Plus|MS:1002634", "Q Exactive Plus|MS:1002634",
+                         "Q Exactive Plus|MS:1002634", "Q Exactive Plus|MS:1002634", "Q Exactive Plus|MS:1002634", "Q Exactive Plus|MS:1002634", "Q Exactive Plus|MS:1002634",
+                         "Q Exactive Plus|MS:1002634", "Q Exactive Plus|MS:1002634", "Q Exactive Plus|MS:1002634", "Q Exactive Plus|MS:1002634"),
     
     SampleCollectionMethod = c("swabs, solution (95% EtOH)", "swabs, solution (95% EtOH)", "swabs, solution (95% EtOH)", "swabs, solution (95% EtOH)", "swabs, solution (95% EtOH)",
-                         "swabs, solution (95% EtOH)", "swabs, solution (95% EtOH)", "swabs, solution (95% EtOH)", "swabs, solution (95% EtOH)", "swabs, solution (95% EtOH)",
-                         "swabs, solution (95% EtOH)", "swabs, solution (95% EtOH)", "swabs, solution (95% EtOH)", "swabs, solution (95% EtOH)", "swabs, solution (95% EtOH)",
-                         "swabs, solution (95% EtOH)", "swabs, solution (95% EtOH)", "swabs, solution (95% EtOH)", "swabs, solution (95% EtOH)", "swabs, solution (95% EtOH)",
-                         "swabs, solution (95% EtOH)", "swabs, solution (95% EtOH)", "swabs, solution (95% EtOH)", "swabs, solution (95% EtOH)"),
+                               "swabs, solution (95% EtOH)", "swabs, solution (95% EtOH)", "swabs, solution (95% EtOH)", "swabs, solution (95% EtOH)", "swabs, solution (95% EtOH)",
+                               "swabs, solution (95% EtOH)", "swabs, solution (95% EtOH)", "swabs, solution (95% EtOH)", "swabs, solution (95% EtOH)", "swabs, solution (95% EtOH)",
+                               "swabs, solution (95% EtOH)", "swabs, solution (95% EtOH)", "swabs, solution (95% EtOH)", "swabs, solution (95% EtOH)", "swabs, solution (95% EtOH)",
+                               "swabs, solution (95% EtOH)", "swabs, solution (95% EtOH)", "swabs, solution (95% EtOH)", "swabs, solution (95% EtOH)"),
     
     SampleExtractionMethod = c("methanol-water (4:1)", "methanol-water (4:1)", "methanol-water (4:1)", "methanol-water (4:1)", "methanol-water (4:1)",
-                         "methanol-water (4:1)", "methanol-water (4:1)", "methanol-water (4:1)", "methanol-water (4:1)", "methanol-water (4:1)",
-                         "methanol-water (4:1)", "methanol-water (4:1)", "methanol-water (4:1)", "methanol-water (4:1)", "methanol-water (4:1)",
-                         "methanol-water (4:1)", "methanol-water (4:1)", "methanol-water (4:1)", "methanol-water (4:1)", "methanol-water (4:1)",
-                         "methanol-water (4:1)", "methanol-water (4:1)", "methanol-water (4:1)", "methanol-water (4:1)"),
+                               "methanol-water (4:1)", "methanol-water (4:1)", "methanol-water (4:1)", "methanol-water (4:1)", "methanol-water (4:1)",
+                               "methanol-water (4:1)", "methanol-water (4:1)", "methanol-water (4:1)", "methanol-water (4:1)", "methanol-water (4:1)",
+                               "methanol-water (4:1)", "methanol-water (4:1)", "methanol-water (4:1)", "methanol-water (4:1)", "methanol-water (4:1)",
+                               "methanol-water (4:1)", "methanol-water (4:1)", "methanol-water (4:1)", "methanol-water (4:1)"),
     
     IonizationSourceAndPolarity = c("electrospray ionization (positive)", "electrospray ionization (positive)", "electrospray ionization (positive)", "electrospray ionization (positive)", "electrospray ionization (positive)",
-                               "electrospray ionization (positive)", "electrospray ionization (positive)", "electrospray ionization (positive)", "electrospray ionization (positive)", "electrospray ionization (positive)",
-                               "electrospray ionization (positive)", "electrospray ionization (positive)", "electrospray ionization (positive)", "electrospray ionization (positive)", "electrospray ionization (positive)",
-                               "electrospray ionization (positive)", "electrospray ionization (positive)", "electrospray ionization (positive)", "electrospray ionization (positive)", "electrospray ionization (positive)",
-                               "electrospray ionization (positive)", "electrospray ionization (positive)", "electrospray ionization (positive)", "electrospray ionization (positive)"),
+                                    "electrospray ionization (positive)", "electrospray ionization (positive)", "electrospray ionization (positive)", "electrospray ionization (positive)", "electrospray ionization (positive)",
+                                    "electrospray ionization (positive)", "electrospray ionization (positive)", "electrospray ionization (positive)", "electrospray ionization (positive)", "electrospray ionization (positive)",
+                                    "electrospray ionization (positive)", "electrospray ionization (positive)", "electrospray ionization (positive)", "electrospray ionization (positive)", "electrospray ionization (positive)",
+                                    "electrospray ionization (positive)", "electrospray ionization (positive)", "electrospray ionization (positive)", "electrospray ionization (positive)"),
     
     ChromatographyAndPhase = c("reverse phase (C18)", "reverse phase (C18)", "reverse phase (C18)", "reverse phase (C18)", "reverse phase (C18)",
-                                    "reverse phase (C18)", "reverse phase (C18)", "reverse phase (C18)", "reverse phase (C18)", "reverse phase (C18)",
-                                    "reverse phase (C18)", "reverse phase (C18)", "reverse phase (C18)", "reverse phase (C18)", "reverse phase (C18)",
-                                    "reverse phase (C18)", "reverse phase (C18)", "reverse phase (C18)", "reverse phase (C18)", "reverse phase (C18)",
-                                    "reverse phase (C18)", "reverse phase (C18)", "reverse phase (C18)", "reverse phase (C18)"),
+                               "reverse phase (C18)", "reverse phase (C18)", "reverse phase (C18)", "reverse phase (C18)", "reverse phase (C18)",
+                               "reverse phase (C18)", "reverse phase (C18)", "reverse phase (C18)", "reverse phase (C18)", "reverse phase (C18)",
+                               "reverse phase (C18)", "reverse phase (C18)", "reverse phase (C18)", "reverse phase (C18)", "reverse phase (C18)",
+                               "reverse phase (C18)", "reverse phase (C18)", "reverse phase (C18)", "reverse phase (C18)"),
     
     NCBITaxonomy          = c("9606|Homo sapiens", "9606|Homo sapiens", "9606|Homo sapiens", "9606|Homo sapiens", "9606|Homo sapiens",
-                               "9606|Homo sapiens", "9606|Homo sapiens", "9606|Homo sapiens", "9606|Homo sapiens", "9606|Homo sapiens",
-                               "9606|Homo sapiens", "9606|Homo sapiens", "9606|Homo sapiens", "9606|Homo sapiens", "9606|Homo sapiens",
-                               "9606|Homo sapiens", "9606|Homo sapiens", "9606|Homo sapiens", "9606|Homo sapiens", "9606|Homo sapiens",
-                               "9606|Homo sapiens", "9606|Homo sapiens", "9606|Homo sapiens", "9606|Homo sapiens"),
+                              "9606|Homo sapiens", "9606|Homo sapiens", "9606|Homo sapiens", "9606|Homo sapiens", "9606|Homo sapiens",
+                              "9606|Homo sapiens", "9606|Homo sapiens", "9606|Homo sapiens", "9606|Homo sapiens", "9606|Homo sapiens",
+                              "9606|Homo sapiens", "9606|Homo sapiens", "9606|Homo sapiens", "9606|Homo sapiens", "9606|Homo sapiens",
+                              "9606|Homo sapiens", "9606|Homo sapiens", "9606|Homo sapiens", "9606|Homo sapiens"),
     
     UBERONBodyPartName    = c("blood plasma", "blood plasma", "blood plasma", "blood plasma", "blood plasma",
-                               "blood plasma", "blood plasma", "blood plasma", "blood plasma", "blood plasma",
-                               "blood plasma", "blood plasma", "blood plasma", "blood plasma", "blood plasma",
-                               "blood plasma", "blood plasma", "blood plasma", "blood plasma", "blood plasma",
-                               "blood plasma", "blood plasma", "blood plasma", "blood plasma"),
+                              "blood plasma", "blood plasma", "blood plasma", "blood plasma", "blood plasma",
+                              "blood plasma", "blood plasma", "blood plasma", "blood plasma", "blood plasma",
+                              "blood plasma", "blood plasma", "blood plasma", "blood plasma", "blood plasma",
+                              "blood plasma", "blood plasma", "blood plasma", "blood plasma"),
     
     HealthStatus          = c("chronic illness", "chronic illness", "chronic illness", "chronic illness", "chronic illness",
-                               "chronic illness", "chronic illness", "chronic illness", "chronic illness", "chronic illness",
-                               "chronic illness", "chronic illness", "chronic illness", "chronic illness", "chronic illness",
-                               "chronic illness", "chronic illness", "chronic illness", "chronic illness", "chronic illness",
-                               "chronic illness", "chronic illness", "chronic illness", "chronic illness"),
-   
+                              "chronic illness", "chronic illness", "chronic illness", "chronic illness", "chronic illness",
+                              "chronic illness", "chronic illness", "chronic illness", "chronic illness", "chronic illness",
+                              "chronic illness", "chronic illness", "chronic illness", "chronic illness", "chronic illness",
+                              "chronic illness", "chronic illness", "chronic illness", "chronic illness"),
+    
     DOIDCommonName        = c("cystic fibrosis", "cystic fibrosis", "cystic fibrosis", "cystic fibrosis", "cystic fibrosis",
-                               "cystic fibrosis", "cystic fibrosis", "cystic fibrosis", "cystic fibrosis", "cystic fibrosis",
-                               "cystic fibrosis", "cystic fibrosis", "cystic fibrosis", "cystic fibrosis", "cystic fibrosis",
-                               "cystic fibrosis", "cystic fibrosis", "cystic fibrosis", "cystic fibrosis", "cystic fibrosis",
-                               "cystic fibrosis", "cystic fibrosis", "cystic fibrosis", "cystic fibrosis"),
-    			
+                              "cystic fibrosis", "cystic fibrosis", "cystic fibrosis", "cystic fibrosis", "cystic fibrosis",
+                              "cystic fibrosis", "cystic fibrosis", "cystic fibrosis", "cystic fibrosis", "cystic fibrosis",
+                              "cystic fibrosis", "cystic fibrosis", "cystic fibrosis", "cystic fibrosis", "cystic fibrosis",
+                              "cystic fibrosis", "cystic fibrosis", "cystic fibrosis", "cystic fibrosis"),
+    
     filename       = c("QC01.mzML", "1M0.mzML", "QCdil16_a.mzML", "QCdil8_a.mzML", "QCdil4_a.mzML",
                        "5M0.mzML", "Blank01.mzML", "2M0.mzML", "QC02.mzML", "4M0.mzML",
                        "3M0.mzML", "1M3.mzML", "5M3.mzML", "QC03.mzML", "Blank02.mzML",
@@ -673,7 +673,7 @@ perform_peak_picking_centwave <- function(file_list_tot, param_folder, defaults 
     text(1:n_roi, n_roi + 0.9, colnames(correlation_matrix), cex = 1.2, font = 2, col = roi_colors)
     text(0.3, n_roi - (1:n_roi) + 1, colnames(correlation_matrix), cex = 1.2, font = 2, col = roi_colors, srt = 90)
     
-    }
+  }
   
   review_ppm_dispersion <- function(xdata, standards) {
     
@@ -791,7 +791,7 @@ perform_peak_picking_centwave <- function(file_list_tot, param_folder, defaults 
   # Usage
   
   result_ppm_dispersion <- review_ppm_dispersion(xdata, standards)
-  if (is.null(result)) { message("Stopped by user.") ; return(NULL) }
+  if (is.null(result_ppm_dispersion)) { message("Stopped by user.") ; return(NULL) }
   
   ppm_Centwave <- result_ppm_dispersion$ppm_Centwave
   ppm_diag_standard <- result_ppm_dispersion$ppm_diag
@@ -1463,7 +1463,7 @@ perform_obiwarp_alignment <- function(xdata_peaks, qc_names, param_folder, stand
                              "Spectra acquired ", tags$em("after"), " such a gap are ", tags$b("not adjusted"), " — their original retention times are preserved. ",
                              "The default value of 5 is appropriate for standard LC-MS data. ",
                              tags$b("For Waters instruments with lock-mass scans, or for DDA/LC-MS/MS data where MS2 scans interrupt MS1 acquisition, ",
-                                       "this threshold may need to be increased to avoid false gap detection."))
+                                    "this threshold may need to be increased to avoid false gap detection."))
                        )
           ),
           
@@ -2302,533 +2302,984 @@ perform_gap_filling <- function(xdata_grouped, data_folder, param_folder) {
 ########################################################################################################################
 ########################################################################################################################
 
-#' Adduct and Isotope Search from Gap-Filled Feature Data
-#'
 #' @param xdata_filled XCMSnExp object after gap filling
 #' @param data_folder Folder path to save the peak filled summary
 #' @param param_folder Folder path to save parameters
-#' @param blank_names List of blank names
-#' @return list with annotated featureDefinitions and intensity matrices
-#'
+#' @param blank_names Character vector of blank sample names
+#' @param qc_names Character vector of QC sample names
+#' @param adduct_table Optional data.frame of adducts (see \code{.fa_default_adducts}); 
+#'   NULL uses the built-in table
+#' @param params Optional named list overriding \code{.fa_default_params()} entries
+#' @param use_shiny Logical; if TRUE, opens Shiny apps to edit parameters and choose
+#'   merges interactively
+#' @param output_subdir Subfolder (under data_folder/param_folder) where results are written
+#' @return A list with \code{feature_definitions} (annotated), \code{annotation}, raw /
+#'   detected / merged / representative intensity matrices, \code{summary} and \code{params}
 
-find_adducts <- function(xdata_filled, data_folder, param_folder, blank_names) {
-  
-  # Shared CSS for both Shiny apps
-  
-  param_css <- "
-    .param-section-title {
-      margin-top: 26px; margin-bottom: 10px; padding-left: 10px;
-      border-left: 4px solid #2C7BE5; font-weight: 600; font-size: 15px;
-      letter-spacing: 0.4px; text-transform: uppercase; color: #2c3e50;
-    }
-    .param-section-title:first-of-type { margin-top: 4px; }
-    .param-hint { font-size: 12.5px; color: #8a93a0; margin-bottom: 18px; }
-    details.param-card {
-      background: #fbfcfd; border: 1px solid #e3e7ec; border-radius: 8px;
-      margin-bottom: 8px; overflow: hidden;
-    }
-    details.param-card summary {
-      cursor: pointer; list-style: none; padding: 10px 14px; font-size: 14px;
-      font-weight: 600; color: #1f2d3d; background: #f1f4f8; display: flex; align-items: center;
-    }
-    details.param-card summary::-webkit-details-marker { display: none; }
-    details.param-card summary::before {
-      content: '\u25B8'; color: #2C7BE5; margin-right: 8px; display: inline-block;
-      transition: transform 0.15s ease;
-    }
-    details.param-card[open] summary::before { transform: rotate(90deg); }
-    details.param-card[open] summary { border-bottom: 1px solid #e3e7ec; }
-    .param-card-body { padding: 12px 16px; font-size: 13.5px; line-height: 1.55; color: #3a3f44; }
-    .param-card-body ul { margin: 6px 0 0 18px; padding: 0; }
-    .param-card-body li { margin-bottom: 4px; }
-  "
-  
-  # -------- Shiny app 1: ask for adduct/isotope search parameters --------
-  
-  get_adduct_params <- function() {
-    
-    ui <- fluidPage(
-      tags$head(tags$style(HTML(param_css))),
-      titlePanel("Adduct & Isotope Search Parameters"),
-      sidebarLayout(
-        sidebarPanel(
-          radioButtons("polarity", "Ionization polarity", choices = c("pos", "neg"), selected = "pos"),
-          numericInput("rt_tol", "\u2757 RT tolerance for co-elution (s)", value = 2, min = 0, step = 1),
-          numericInput("ppm", "\u2757 ppm tolerance for mass matching", value = 5, min = 0, step = 1),
-          numericInput("cor_threshold", "\u2757 Minimum intensity correlation", value = 0.85, min = 0, max = 1, step = 0.05),
-          numericInput("max_isotopes", "\u2757 Max isotope rank to search (e.g. 3 = up to M+3)", value = 3, min = 1, step = 1),
-          br(),
-          actionButton("submit", "Submit", class = "btn-success")
-        ),
-        mainPanel(
-          h4("Parameter Description"),
-          p(class = "param-hint", "Click a parameter below to expand its detailed explanation."),
-          div(class = "param-section-title", "Feature Grouping & Matching"),
-          tags$details(class = "param-card", tags$summary("RT tolerance"),
-                       div(class = "param-card-body",
-                           p("Maximum retention time difference (in seconds) allowed between two features for them to be considered co-eluting and grouped together."))),
-          tags$details(class = "param-card", tags$summary("ppm tolerance"),
-                       div(class = "param-card-body",
-                           p("Maximum relative mass difference (in ppm) allowed between two candidate neutral masses (adducts) or between two m/z (isotopes) for them to be considered a match."))),
-          tags$details(class = "param-card", tags$summary("Minimum intensity correlation"),
-                       div(class = "param-card-body",
-                           p("Minimum Pearson correlation between two features' intensity profiles (across samples) required for them to be grouped as coming from the same compound."))),
-          tags$details(class = "param-card", tags$summary("Max isotope rank"),
-                       div(class = "param-card-body",
-                           p("How many 13C isotopes to search for above the monoisotopic feature (e.g. 2 searches for M+1 and M+2).")))
-        )
-      )
-    )
-    
-    server <- function(input, output, session) {
-      observeEvent(input$submit, {
-        stopApp(list(
-          polarity = input$polarity,
-          rt_tol = input$rt_tol,
-          ppm = input$ppm,
-          cor_threshold = input$cor_threshold,
-          max_isotopes = input$max_isotopes
-        ))
-      })
-    }
-    
-    shiny::runApp(shinyApp(ui, server), launch.browser = TRUE)
-  }
-  
-  adduct_params <- get_adduct_params()
-  
-  if (is.null(adduct_params)) {
-    message("Adduct search canceled by user.")
-    return(NULL)
-  }
-  
-  polarity      <- adduct_params$polarity
-  rt_tol        <- adduct_params$rt_tol
-  ppm           <- adduct_params$ppm
-  cor_threshold <- adduct_params$cor_threshold
-  max_isotopes  <- adduct_params$max_isotopes
-  
-  # Reference table: mass_shift = mass of the group actually added/removed (per event)
-  # n_shift = number of times mass_shift applies (e.g. 2 for [M+2H]2+)
-  # n_mol   = number of M units combined in the ion (e.g. 2 for [2M+H]+)
-  # freq    = qualitative prior on how commonly this adduct is observed in practice
-  
-  adduct_table <- data.frame(
-    adduct     = c("[M+H]+", "[M+Na]+", "[M+NH4]+", "[M+K]+", "[2M+H]+", "[2M+Na]+",
-                   "[M+H-H2O]+", "[M+ACN+H]+", "[M+2H]2+",
-                   "[M-H]-", "[M+FA-H]-", "[M+Cl]-", "[2M-H]-",
-                   "[M+CH3COO]-", "[2M+FA-H]-"),
-    mass_shift = c(1.007276, 22.989221, 18.033823, 38.963158, 1.007276, 22.989221,
-                   -17.003289, 42.033825, 1.007276,
-                   -1.007276, 44.998201, 34.969402, -1.007276,
-                   59.013304, 44.998201),
-    charge     = c(1, 1, 1, 1, 1, 1, 1, 1, 2, -1, -1, -1, -1, -1, -1),
-    n_mol      = c(1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 2, 1, 2),
-    n_shift    = c(1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1),
-    polarity   = c("pos", "pos", "pos", "pos", "pos", "pos", "pos", "pos", "pos",
-                   "neg", "neg", "neg", "neg", "neg", "neg"),
-    freq       = c(3, 2, 2, 2, 2, 1, 2, 1, 1, 3, 2, 2, 1, 2, 1)
-  )
-  
-  adduct_table <- adduct_table[adduct_table$polarity == polarity, ]
-  freq_by_adduct <- setNames(adduct_table$freq, adduct_table$adduct)
-  
-  feature_defs        <- as.data.frame(featureDefinitions(xdata_filled))
-  feature_intensities <- featureValues(xdata_filled, value = "into")
-  n_features          <- nrow(feature_defs)
-  
-  # Median (not mean) intensity across samples: far more robust to outliers,
-  # failed injections, and missing values than a mean would be.
-  
-  median_intensity <- apply(feature_intensities, 1, median, na.rm = TRUE)
-  
-  # Precompute the full pairwise correlation matrix once, instead of calling cor()
-  # repeatedly inside nested loops. Same result, much faster for large feature tables.
-  
-  log_intensities <- log10(feature_intensities[, !colnames(feature_intensities) %in% paste0(blank_names, ".mzML")] + 1)
-  cor_matrix <- suppressWarnings(cor(t(log_intensities), use = "pairwise.complete.obs", method = "pearson"))
-  cor_matrix[is.na(cor_matrix)] <- -1 # Safety
-  
-  # Step 0 : flag duplicate features from peak splitting (same mz/rt, highly correlated)
-  
-  dup_mz_tol <- 5 / 1e6
-  dup_rt_tol <- 2
-  feature_defs$duplicate_of <- NA_integer_
-  
-  for (i in seq_len(n_features - 1)) {
-    if (!is.na(feature_defs$duplicate_of[i])) next
-    for (j in seq(i + 1, n_features)) {
-      if (!is.na(feature_defs$duplicate_of[j])) next
-      mz_diff <- abs(feature_defs$mzmed[i] - feature_defs$mzmed[j])
-      rt_diff <- abs(feature_defs$rtmed[i] - feature_defs$rtmed[j])
-      if (mz_diff <= feature_defs$mzmed[i] * dup_mz_tol &&
-          rt_diff <= dup_rt_tol && cor_matrix[i, j] >= 0.98) {
-        loser  <- if (median_intensity[i] >= median_intensity[j]) j else i
-        keeper <- if (loser == i) j else i
-        while (!is.na(feature_defs$duplicate_of[keeper])) keeper <- feature_defs$duplicate_of[keeper]
-        feature_defs$duplicate_of[loser] <- keeper
-      }
-    }
-  }
-  
-  # Step 1 : group co-eluting features (RT proximity + intensity correlation)
-  
-  rt_diff_matrix <- abs(outer(feature_defs$rtmed, feature_defs$rtmed, "-"))
-  not_dup <- is.na(feature_defs$duplicate_of)
-  
-  adjacency <- (rt_diff_matrix <= rt_tol) & (cor_matrix >= cor_threshold) &
-    outer(not_dup, not_dup, "&")
-  diag(adjacency) <- FALSE
-  
-  graph <- igraph::graph_from_adjacency_matrix(adjacency, mode = "undirected")
-  comp  <- igraph::components(graph) 
-  
-  feature_defs$group_id <- ifelse(comp$csize[comp$membership] >= 2, comp$membership, NA_integer_)
-  
-  # Step 2 : back-calculate candidate neutral mass under every adduct hypothesis
-  # neutral_mass = (mz * |charge| - mass_shift * n_shift) / n_mol
-  
-  adduct_candidates <- do.call(rbind, lapply(seq_len(n_features), function(i) {
-    if (is.na(feature_defs$group_id[i])) return(NULL)
-    data.frame(
-      feature_id = i,
-      group_id = feature_defs$group_id[i],
-      adduct = adduct_table$adduct,
-      freq = adduct_table$freq,
-      neutral_mass = (feature_defs$mzmed[i] * abs(adduct_table$charge) -
-                        adduct_table$mass_shift * adduct_table$n_shift) / adduct_table$n_mol
-    )
-  }))
-  
-  # Step 3: within each group, find pairs of features whose candidate neutral masses agree.
-  # Each matching pair generates an adduct hypothesis for both features.
-  # The quality of the match is stored using ppm error and correlation.
-  
-  feature_adduct_hits <- vector("list", n_features)
-  
-  for (g in unique(adduct_candidates$group_id)) {
-    
-    group_candidates <- adduct_candidates[adduct_candidates$group_id == g, ]
-    n_rows <- nrow(group_candidates)
-    if (n_rows < 2) next
-    
-    for (i in seq_len(n_rows - 1)) {
-      for (j in seq(i + 1, n_rows)) {
-        
-        if (group_candidates$feature_id[i] == group_candidates$feature_id[j]) next
-        
-        feature_i <- group_candidates$feature_id[i]
-        feature_j <- group_candidates$feature_id[j]
-        
-        # direct chromatographic similarity check
-        correlation <- cor_matrix[feature_i, feature_j]
-        if (correlation < cor_threshold) next
-        
-        # mass agreement
-        mean_mass <- mean(group_candidates$neutral_mass[c(i, j)])
-        
-        mass_diff <- abs(
-          group_candidates$neutral_mass[i] -
-            group_candidates$neutral_mass[j]
-        )
-        
-        ppm_error <- mass_diff / mean_mass * 1e6
-        
-        if (ppm_error > ppm) next
-        
-        # store hypothesis for feature i
-        feature_adduct_hits[[feature_i]] <- rbind(
-          feature_adduct_hits[[feature_i]],
-          data.frame(
-            adduct = group_candidates$adduct[i],
-            freq = group_candidates$freq[i],
-            ppm_error = ppm_error,
-            correlation = correlation,
-            stringsAsFactors = FALSE
-          )
-        )
-        
-        # store hypothesis for feature j
-        feature_adduct_hits[[feature_j]] <- rbind(
-          feature_adduct_hits[[feature_j]],
-          data.frame(
-            adduct = group_candidates$adduct[j],
-            freq = group_candidates$freq[j],
-            ppm_error = ppm_error,
-            correlation = correlation,
-            stringsAsFactors = FALSE
-          )
-        )
-      }
-    }
-  }
-  
-  
-  feature_defs$adduct           <- NA_character_
-  feature_defs$adduct_ppm_error <- NA_character_
-  feature_defs$adduct_score     <- NA_real_
-  
-  
-  for (i in seq_len(n_features)) {
-    
-    hits <- feature_adduct_hits[[i]]
-    if (is.null(hits)) next
-    
-    # normalize evidence
-    hits$freq_score <- hits$freq / max(adduct_table$freq)
-    
-    hits$ppm_score <- exp(-hits$ppm_error / ppm)
-    
-    hits$corr_score <- hits$correlation
-    
-    # global confidence score
-    hits$total_score <-
-      0.3 * hits$freq_score +
-      0.4 * hits$ppm_score +
-      0.3 * hits$corr_score
-    
-    # keep best hypothesis per adduct
-    hits <- hits[order(-hits$total_score), ]
-    hits <- hits[!duplicated(hits$adduct), ]
-    
-    feature_defs$adduct[i] <-
-      paste(hits$adduct, collapse = "/")
-    
-    feature_defs$adduct_ppm_error[i] <-
-      paste(round(hits$ppm_error, 2), collapse = "/")
-    
-    feature_defs$adduct_score[i] <-
-      max(hits$total_score)
-  }
-  
-  
-  
-  # Step 4: choose the primary feature inside each compound group.
-  # The primary feature is the feature with the strongest adduct evidence.
-  # Intensity is only used as a final tie breaker.
-  
-  feature_defs$is_primary <- FALSE
-  feature_defs$primary_feature <- NA_integer_
-  
-  
-  for (g in unique(na.omit(feature_defs$group_id))) {
-    
-    group_rows <- which(
-      feature_defs$group_id == g &
-        !is.na(feature_defs$adduct_score)
-    )
-    
-    if (length(group_rows) < 2) next
-    
-    
-    # primary score
-    primary_score <- feature_defs$adduct_score[group_rows]
-    
-    # intensity only breaks very close ties
-    ranking <- order(
-      -primary_score,
-      -median_intensity[group_rows]
-    )
-    
-    primary_row <- group_rows[ranking[1]]
-    
-    
-    feature_defs$is_primary[primary_row] <- TRUE
-    
-    # group_id is a connected component, not a clique: only assign features that
-    # are directly correlated with the chosen primary, not every group member.
-    correlated_rows <- group_rows[cor_matrix[group_rows, primary_row] >= cor_threshold]
-    feature_defs$primary_feature[correlated_rows] <- primary_row
-  }
-  
-  
-  n_groups_detected <- length(unique(na.omit(feature_defs$primary_feature)))
-  
-  # Step 5: within each group, detect isotope clusters. Two features are isotopes of one
-  # another if their m/z difference matches n x (13C-12C mass diff) within ppm tolerance.
-  # Intensity must strictly decrease along the whole chain: M > M+1 > M+2, never just
-  # M > M+n in isolation -- an M+2 candidate is only accepted if a valid M+1 was already
-  # found for the same root, and each successive isotope must be less intense than the
-  # previous rank in the chain (not just less intense than the root).
-  # The lowest-mass feature of the cluster is the "root" (monoisotopic feature).
-  
-  isotope_mass_diff <- 1.003355
-  feature_defs$isotope           <- NA_character_
-  feature_defs$isotope_of        <- NA_integer_
-  feature_defs$isotope_ppm_error <- NA_real_
-  
-  for (g in unique(na.omit(feature_defs$group_id))) {
-    group_rows <- which(feature_defs$group_id == g)
-    group_rows <- group_rows[order(feature_defs$mzmed[group_rows])]
-    n_rows <- length(group_rows)
-    if (n_rows < 2) next
-    
-    for (i in seq_len(n_rows - 1)) {
-      for (j in seq(i + 1, n_rows)) {
-        feature_i <- group_rows[i]
-        feature_j <- group_rows[j]
-        if (!is.na(feature_defs$isotope_of[feature_j])) next  # already linked to a closer root
-        
-        # group_id is a connected component, not a clique: A and C can end up in the
-        # same group via a transitive chain (A-B and B-C correlated) without A-C
-        # being directly correlated. Enforce the direct pairwise correlation here.
-        if (cor_matrix[feature_i, feature_j] < cor_threshold) next
-        
-        mz_diff <- feature_defs$mzmed[feature_j] - feature_defs$mzmed[feature_i]
-        isotope_rank <- round(mz_diff / isotope_mass_diff)
-        if (isotope_rank < 1 || isotope_rank > max_isotopes) next
-        
-        mz_tolerance <- feature_defs$mzmed[feature_j] * ppm / 1e6
-        mz_error <- abs(mz_diff - isotope_rank * isotope_mass_diff)
-        if (mz_error > mz_tolerance) next
-        
-        # Monotonicity: compare to the previous rank in the chain, not just the root
-        if (isotope_rank == 1) {
-          reference_intensity <- median_intensity[feature_i]
-        } else {
-          previous_rank_feature <- which(feature_defs$isotope_of == feature_i &
-                                           feature_defs$isotope == paste0("M+", isotope_rank - 1))
-          if (length(previous_rank_feature) == 0) next  # skip M+2 etc. if the prior rank wasn't validated
-          reference_intensity <- median_intensity[previous_rank_feature[1]]
-        }
-        if (median_intensity[feature_j] >= reference_intensity) next
-        
-        feature_defs$isotope[feature_j]           <- paste0("M+", isotope_rank)
-        feature_defs$isotope_of[feature_j]        <- feature_i
-        feature_defs$isotope_ppm_error[feature_j] <- round(mz_error / feature_defs$mzmed[feature_j] * 1e6, 2)
-      }
-    }
-  }
-  
-  n_isotopes_detected <- sum(!is.na(feature_defs$isotope_of))
-  
-  # -------- Shiny app 2: ask whether to merge adducts / isotopes into their reference feature --------
-  
-  ask_merge <- function(n_groups_detected, n_isotopes_detected) {
-    
-    ui <- fluidPage(
-      tags$head(tags$style(HTML(param_css))),
-      titlePanel("Merge Adducts & Isotopes"),
-      sidebarLayout(
-        sidebarPanel(
-          radioButtons("merge_adducts", "Merge adduct intensities into the primary feature?",
-                       choices = c("Yes" = "yes", "No" = "no"), selected = "yes"),
-          radioButtons("merge_isotopes", "Merge isotope intensities into the monoisotopic feature?",
-                       choices = c("Yes" = "yes", "No" = "no"), selected = "yes"),
-          br(),
-          actionButton("submit", "Submit", class = "btn-success")
-        ),
-        mainPanel(
-          h4("Summary"),
-          p(paste(n_groups_detected, "compound group(s) with adducts detected.")),
-          p(paste(n_isotopes_detected, "isotope feature(s) detected.")),
-          div(class = "param-section-title", "What This Does"),
-          tags$details(class = "param-card", tags$summary("Merging"),
-                       div(class = "param-card-body",
-                           p("Isotope intensities are summed into their monoisotopic feature first, sample by sample. Adduct intensities (including any merged isotopes) are then summed into the primary feature. Any feature merged into another is removed from the final intensity matrix.")))
-        )
-      )
-    )
-    
-    server <- function(input, output, session) {
-      observeEvent(input$submit, {
-        stopApp(list(
-          merge_adducts  = input$merge_adducts == "yes",
-          merge_isotopes = input$merge_isotopes == "yes"
-        ))
-      })
-    }
-    
-    shiny::runApp(shinyApp(ui, server), launch.browser = TRUE)
-  }
-  
-  merge_choice <- ask_merge(n_groups_detected, n_isotopes_detected)
-  should_merge_adducts  <- !is.null(merge_choice) && isTRUE(merge_choice$merge_adducts)
-  should_merge_isotopes <- !is.null(merge_choice) && isTRUE(merge_choice$merge_isotopes)
-  
-  merged_feature_intensities <- feature_intensities
-  
-  
-  # Merge duplicated feature
-  for (keeper in unique(na.omit(feature_defs$duplicate_of))) {
-    dup_rows <- which(feature_defs$duplicate_of == keeper)
-    merged_feature_intensities[keeper, ] <- colSums(
-      rbind(merged_feature_intensities[keeper, ], merged_feature_intensities[dup_rows, , drop = FALSE]),
-      na.rm = TRUE
-    )
-  }
-  
-  # Merge isotopes into their monoisotopic feature
-  if (should_merge_isotopes) {
-    for (root in unique(na.omit(feature_defs$isotope_of))) {
-      satellite_rows <- which(feature_defs$isotope_of == root)
-      merged_feature_intensities[root, ] <- colSums(
-        rbind(merged_feature_intensities[root, ], merged_feature_intensities[satellite_rows, , drop = FALSE]),
-        na.rm = TRUE
-      )
-    }
-  }
-  
-  # Merge adduct feature
-  if (should_merge_adducts) {
-    for (primary_row in unique(na.omit(feature_defs$primary_feature))) {
-      adduct_rows <- which(feature_defs$primary_feature == primary_row & !feature_defs$is_primary)
-      merged_feature_intensities[primary_row, ] <- colSums(
-        rbind(merged_feature_intensities[primary_row, ], merged_feature_intensities[adduct_rows, , drop = FALSE]),
-        na.rm = TRUE
-      )
-    }
-  }
-  
-  # Features whose intensity has been folded into another feature are dropped from the final matrix
-  is_merged_away <- rep(FALSE, n_features)
-  if (should_merge_isotopes) is_merged_away[!is.na(feature_defs$isotope_of)] <- TRUE
-  if (should_merge_adducts)  is_merged_away[!is.na(feature_defs$primary_feature) & !feature_defs$is_primary] <- TRUE
-  is_merged_away[!is.na(feature_defs$duplicate_of)] <- TRUE
-  
-  feature_defs$fused <- is_merged_away
-  final_feature_intensities <- merged_feature_intensities[!is_merged_away, , drop = FALSE]
-  
-  
-  # Save merged intensity table (csv) and search parameters (json)
-  
-  dir.create(data_folder, recursive = TRUE, showWarnings = FALSE)
-  dir.create(param_folder, recursive = TRUE, showWarnings = FALSE)
-  
-  merged_table_out <- data.frame(feature_id = rownames(final_feature_intensities),
-                                 final_feature_intensities,
-                                 row.names = NULL, check.names = FALSE)
-  
-  write.csv(merged_table_out,
-            file = file.path(data_folder, "1_Pre-processing/merged_feature_intensities.csv"),
-            row.names = FALSE)
-  
-  params_out <- list(
-    polarity         = polarity,
-    rt_tol           = rt_tol,
-    ppm              = ppm,
-    cor_threshold    = cor_threshold,
-    max_isotopes     = max_isotopes,
-    merge_adducts    = should_merge_adducts,
-    merge_isotopes   = should_merge_isotopes
-  )
-  
-  jsonlite::write_json(params_out,
-                       path = file.path(param_folder, "1_Pre-processing/adduct_search_params.json"),
-                       auto_unbox = TRUE, pretty = TRUE)
-  
-  
-  # Return results
-  
+# =============================================================================
+# 1. Parameters, all modified in a single place
+# =============================================================================
+.fa_default_params <- function() {
   list(
-    feature_definitions        = feature_defs,
-    feature_intensities        = feature_intensities,
-    merged_feature_intensities = final_feature_intensities,
-    adducts_merged             = should_merge_adducts,
-    isotopes_merged            = should_merge_isotopes,
-    n_groups_detected          = n_groups_detected,
-    n_isotopes_detected        = n_isotopes_detected
+    polarity = "pos",
+    ppm = 5,                         # relative tolerance, on the observed m/z
+    mz_abs_tol = 0.001,              # absolute floor in Da on the observed m/z
+    rt_tol = 2,                      # seconds
+    cor_threshold = 0.85,            # Pearson on log2, samples excluding blanks/QC
+    min_common_samples = 5L,         # never lowered automatically
+    cor_use_filled = TRUE,           # FALSE = correlation on detected peaks only
+    dup_ppm = 5,
+    dup_rt_tol = 2,
+    dup_cor = 0.98,
+    max_isotopes = 3L,
+    iso_cor_threshold = 0.75,
+    charges = c(1L, 2L),
+    iso_ratio_factor = 1.5,          # heuristic filter, not a validation probability
+    search_heavy_m2 = TRUE,
+    heavy_max_ratio = 2.5,
+    primary_rule = "prior",          # "prior" or "intensity"
+    require_monomer = TRUE,
+    use_eic = FALSE,
+    eic_threshold = 0.7,
+    eic_n = 2L,
+    eic_on_error = "stop",           # "warn" explicitly allows the fallback
+    merge_duplicates = TRUE,         # coalescence, never a sum of duplicates
+    merge_isotopes = TRUE,
+    merge_adducts = TRUE,
+    max_candidate_pairs = 5000000L,  # memory safeguards, not scientific thresholds
+    max_component_size = 3000L
   )
+}
+
+.fa_validate_params <- function(p) {
+  errors <- character()
+  number <- function(x, low, high, integer = FALSE, open = FALSE) {
+    is.numeric(x) && length(x) == 1L && is.finite(x) &&
+      (if (open) x > low else x >= low) && x <= high &&
+      (!integer || x == round(x))
+  }
+  choices <- list(polarity = c("pos", "neg"),
+                  primary_rule = c("prior", "intensity"),
+                  eic_on_error = c("stop", "warn"))
+  for (nm in names(choices)) {
+    if (!(is.character(p[[nm]]) && length(p[[nm]]) == 1L &&
+          !is.na(p[[nm]]) && p[[nm]] %in% choices[[nm]])) {
+      errors <- c(errors, paste(nm, ": invalid value."))
+    }
+  }
+  ranges <- list(ppm = c(0, 100), dup_ppm = c(0, 100),
+                 rt_tol = c(0, 600), dup_rt_tol = c(0, 600),
+                 cor_threshold = c(0, 1), dup_cor = c(0, 1),
+                 iso_cor_threshold = c(0, 1), eic_threshold = c(0, 1),
+                 iso_ratio_factor = c(0, 10), heavy_max_ratio = c(0, 10))
+  for (nm in names(ranges)) {
+    if (!number(p[[nm]], ranges[[nm]][1], ranges[[nm]][2], open = TRUE))
+      errors <- c(errors, paste(nm, ": number out of bounds."))
+  }
+  if (!number(p$mz_abs_tol, 0, 0.1))
+    errors <- c(errors, "mz_abs_tol must be between 0 and 0.1 Da.")
+  integers <- list(min_common_samples = c(3, 1000000), max_isotopes = c(1, 10),
+                   eic_n = c(1, 100), max_candidate_pairs = c(1, 50000000),
+                   max_component_size = c(2, 20000))
+  for (nm in names(integers)) {
+    if (!number(p[[nm]], integers[[nm]][1], integers[[nm]][2], integer = TRUE))
+      errors <- c(errors, paste(nm, ": integer out of bounds."))
+  }
+  flags <- c("cor_use_filled", "search_heavy_m2", "require_monomer", "use_eic",
+             "merge_duplicates", "merge_isotopes", "merge_adducts")
+  for (nm in flags) {
+    if (!(is.logical(p[[nm]]) && length(p[[nm]]) == 1L && !is.na(p[[nm]])))
+      errors <- c(errors, paste(nm, "must be TRUE or FALSE."))
+  }
+  if (!(is.numeric(p$charges) && length(p$charges) > 0L &&
+        !anyNA(p$charges) && all(p$charges %in% c(1, 2)) && !anyDuplicated(p$charges)))
+    errors <- c(errors, "charges must contain 1 and/or 2, without repetition.")
+  errors
+}
+
+.fa_resolve_params <- function(params) {
+  defaults <- .fa_default_params()
+  if (is.null(params) || (is.list(params) && length(params) == 0L)) return(defaults)
+  if (!is.list(params) || is.null(names(params)) || anyNA(names(params)) ||
+      any(!nzchar(names(params))) || anyDuplicated(names(params)))
+    stop("params must be a named list without duplicates.", call. = FALSE)
+  unknown <- setdiff(names(params), names(defaults))
+  if (length(unknown)) stop("Unknown parameter: ", paste(unknown, collapse = ", "), call. = FALSE)
+  if (any(vapply(params, is.null, logical(1))))
+    stop("A parameter cannot be NULL.", call. = FALSE)
+  p <- utils::modifyList(defaults, params)
+  errors <- .fa_validate_params(p)
+  if (length(errors)) stop(paste(errors, collapse = "\n"), call. = FALSE)
+  p
+}
+
+# =============================================================================
+# 2. Public functions: XCMS or plain matrices
+# =============================================================================
+find_adducts <- function(xdata_filled, data_folder, param_folder,
+                         blank_names = character(), qc_names = character(),
+                         adduct_table = NULL, params = NULL, use_shiny = TRUE,
+                         output_subdir = "1_Pre-processing") {
+  .fa_require(c("xcms", "igraph", "jsonlite", if (isTRUE(use_shiny)) "shiny"))
+  if (!is.logical(use_shiny) || length(use_shiny) != 1L || is.na(use_shiny))
+    stop("use_shiny must be TRUE or FALSE.", call. = FALSE)
+  p <- .fa_resolve_params(params)
+  if (use_shiny) {
+    p <- .fa_param_app(p)
+    if (is.null(p)) return(invisible(NULL))
+  }
+  
+  defs <- as.data.frame(xcms::featureDefinitions(xdata_filled))
+  raw <- xcms::featureValues(xdata_filled, value = "into", method = "medret", filled = TRUE)
+  detected <- xcms::featureValues(xdata_filled, value = "into", method = "medret", filled = FALSE)
+  input <- .fa_prepare_input(defs, raw, detected)
+  adducts <- .fa_prepare_adducts(adduct_table)
+  
+  # EIC only splits the monoisotopic clusters that were already obtained.
+  refine <- if (p$use_eic) function(groups) .fa_eic_refine(xdata_filled, groups, p) else NULL
+  res <- .fa_annotate(input$defs, input$raw, blank_names, qc_names, adducts, p,
+                      eic_refine = refine, detected = input$detected)
+  if (use_shiny) {
+    choice <- .fa_merge_app(res$summary, p)
+    if (is.null(choice)) return(invisible(NULL)) # closing the window = cancel the exports
+    p <- .fa_resolve_params(utils::modifyList(p, choice))
+  }
+  result <- .fa_finish(input, res, p)
+  result$params$adduct_table <- adducts[adducts$polarity == p$polarity, , drop = FALSE]
+  result$params$xcms_version <- as.character(utils::packageVersion("xcms"))
+  result$params$session_info <- capture.output(utils::sessionInfo())
+  .fa_write_results(result, data_folder, param_folder, output_subdir)
+  result
+}
+
+# Same engine, without an XCMS object or exports. Useful for tests and for
+# reusing a matrix. detected_intensities must have the same rows/columns; cells
+# filled by gap filling are NA there. It is optional if cor_use_filled = TRUE.
+# use_eic requires the XCMS interface above.
+
+find_adducts_from_matrix <- function(feature_defs, intensities,
+                                     blank_names = character(), qc_names = character(),
+                                     adduct_table = NULL, params = NULL,
+                                     detected_intensities = NULL) {
+  .fa_require("igraph")
+  p <- .fa_resolve_params(params)
+  if (p$use_eic) stop("use_eic requires find_adducts and an XCMS object.", call. = FALSE)
+  input <- .fa_prepare_input(feature_defs, intensities, detected_intensities)
+  if (!p$cor_use_filled && is.null(input$detected))
+    stop("Provide detected_intensities when cor_use_filled = FALSE.", call. = FALSE)
+  adducts <- .fa_prepare_adducts(adduct_table)
+  res <- .fa_annotate(input$defs, input$raw, blank_names, qc_names, adducts, p,
+                      detected = input$detected)
+  result <- .fa_finish(input, res, p)
+  result$params$adduct_table <- adducts[adducts$polarity == p$polarity, , drop = FALSE]
+  result
+}
+
+.fa_require <- function(packages) {
+  for (pkg in packages) if (!requireNamespace(pkg, quietly = TRUE))
+    stop("Required package: ", pkg, call. = FALSE)
+}
+
+.fa_clean <- function(x) {
+  x[!is.finite(x) | x <= 0] <- NA_real_
+  x
+}
+
+.fa_prepare_input <- function(feature_defs, intensities, detected = NULL) {
+  defs <- as.data.frame(feature_defs)
+  raw <- as.matrix(intensities)
+  if (!all(c("mzmed", "rtmed") %in% names(defs)))
+    stop("feature_defs must contain mzmed and rtmed.", call. = FALSE)
+  if (!nrow(defs) || !ncol(raw) || nrow(raw) != nrow(defs) || !is.numeric(raw))
+    stop("A non-empty numeric matrix is required, one row per feature.", call. = FALSE)
+  for (nm in c("mzmed", "rtmed")) {
+    if (!is.numeric(defs[[nm]]) || any(!is.finite(defs[[nm]])))
+      stop(nm, " must be numeric and finite.", call. = FALSE)
+  }
+  if (any(defs$mzmed <= 0) || any(defs$rtmed < 0))
+    stop("m/z must be positive; RT in seconds must be >= 0.", call. = FALSE)
+  if ("ms_level" %in% names(defs) && (anyNA(defs$ms_level) || any(defs$ms_level != 1)))
+    stop("This engine only annotates MS1 features. Split the MS levels first.", call. = FALSE)
+  
+  # R gives numeric rownames to a data.frame without explicit identifiers.
+  has_ids <- .row_names_info(defs, type = 1L) > 0L
+  ids <- if (has_ids) rownames(defs) else rownames(raw)
+  if (is.null(ids)) ids <- sprintf("FT%05d", seq_len(nrow(defs)))
+  if (anyNA(ids) || any(!nzchar(ids)) || anyDuplicated(ids))
+    stop("Invalid or duplicated feature identifiers.", call. = FALSE)
+  rownames(defs) <- ids
+  samples <- colnames(raw)
+  if (is.null(samples)) samples <- paste0("S", seq_len(ncol(raw)))
+  if (anyNA(samples) || any(!nzchar(samples)) || anyDuplicated(samples))
+    stop("Invalid or duplicated sample names.", call. = FALSE)
+  
+  align <- function(x, label) {
+    x <- as.matrix(x)
+    if (!is.numeric(x) || !identical(dim(x), dim(raw)))
+      stop(label, ": invalid dimensions or type.", call. = FALSE)
+    if (!is.null(rownames(x))) {
+      if (anyDuplicated(rownames(x)) || !setequal(rownames(x), ids))
+        stop(label, ": incompatible row identifiers.", call. = FALSE)
+      x <- x[match(ids, rownames(x)), , drop = FALSE]
+    }
+    if (!is.null(colnames(x))) {
+      if (anyDuplicated(colnames(x)) || !setequal(colnames(x), samples))
+        stop(label, ": incompatible samples.", call. = FALSE)
+      x <- x[, match(samples, colnames(x)), drop = FALSE]
+    }
+    dimnames(x) <- list(ids, samples)
+    x
+  }
+  raw <- align(raw, "intensities")
+  if (!is.null(detected)) detected <- align(detected, "detected_intensities")
+  list(defs = defs, raw = raw, detected = detected)
+}
+
+.fa_match_samples <- function(samples, names_to_match, what) {
+  selected <- rep(FALSE, length(samples))
+  if (!length(names_to_match)) return(selected)
+  if (!is.character(names_to_match) || anyNA(names_to_match) || any(!nzchar(names_to_match)))
+    stop("Invalid ", what, " names.", call. = FALSE)
+  strip <- function(x) sub("\\.(mzml|mzxml|mzdata|cdf|netcdf|raw|wiff|d)$", "",
+                           basename(x), ignore.case = TRUE)
+  for (target in unique(names_to_match)) {
+    hit <- which(samples == target)
+    if (!length(hit)) hit <- which(strip(samples) == strip(target))
+    if (length(hit) != 1L)
+      stop(what, " sample not found or ambiguous: ", target, call. = FALSE)
+    selected[hit] <- TRUE
+  }
+  selected
+}
+
+.fa_prepare_adducts <- function(tab) {
+  if (is.null(tab)) tab <- .fa_default_adducts()
+  tab <- as.data.frame(tab, stringsAsFactors = FALSE)
+  if (!"total_shift" %in% names(tab) && all(c("mass_shift", "n_shift") %in% names(tab)))
+    tab$total_shift <- tab$mass_shift * tab$n_shift
+  required <- c("adduct", "total_shift", "charge", "n_mol", "polarity", "freq")
+  if (!all(required %in% names(tab)))
+    stop("Required adduct columns: ", paste(required, collapse = ", "), call. = FALSE)
+  tab <- tab[, required, drop = FALSE]
+  if (!nrow(tab) || anyNA(tab)) stop("Adduct table is empty or contains NA.", call. = FALSE)
+  for (nm in c("total_shift", "charge", "n_mol", "freq")) {
+    if (!is.numeric(tab[[nm]]) || any(!is.finite(tab[[nm]])))
+      stop("Invalid adduct column: ", nm, call. = FALSE)
+  }
+  if (any(!nzchar(as.character(tab$adduct))) || anyDuplicated(tab$adduct) ||
+      any(!tab$polarity %in% c("pos", "neg")) || any(tab$charge == 0) ||
+      any(tab$charge != round(tab$charge)) || any(tab$n_mol < 1) ||
+      any(tab$n_mol != round(tab$n_mol)) || any(tab$freq < 0) ||
+      any((tab$polarity == "pos") != (tab$charge > 0)))
+    stop("Inconsistent adduct table: names, polarities, charges, n_mol or freq.", call. = FALSE)
+  tab
+}
+
+# =============================================================================
+# 3. Annotation engine: one step, one responsibility
+# =============================================================================
+.fa_annotate <- function(feature_defs, intensities, blank_names, qc_names, adducts, p,
+                         eic_refine = NULL, detected = NULL) {
+  n <- nrow(feature_defs)
+  ids <- rownames(feature_defs)
+  mz <- feature_defs$mzmed
+  rt <- feature_defs$rtmed
+  samples <- colnames(intensities)
+  is_blank <- .fa_match_samples(samples, blank_names, "blank")
+  is_qc <- .fa_match_samples(samples, qc_names, "QC")
+  if (any(is_blank & is_qc)) stop("A sample is declared both blank AND QC.", call. = FALSE)
+  if (all(is_blank)) stop("All samples are blanks.", call. = FALSE)
+  
+  # A. Positive intensities only. Median and ratios exclude blanks, QC included.
+  X <- .fa_clean(intensities)
+  Xs <- X[, !is_blank, drop = FALSE]
+  med <- apply(Xs, 1, stats::median, na.rm = TRUE)
+  med[!is.finite(med)] <- 0
+  Xcor <- if (p$cor_use_filled) X else .fa_clean(detected)
+  L <- log2(Xcor[, !is_blank & !is_qc, drop = FALSE])
+  if (ncol(L) < p$min_common_samples)
+    warning("Fewer correlation samples than min_common_samples: no pair will be validated.",
+            call. = FALSE)
+  
+  # B. Pairs close in RT, correlation computed on common observations.
+  pairs <- .fa_candidate_pairs(rt, max(p$rt_tol, p$dup_rt_tol), p$max_candidate_pairs)
+  correlation <- .fa_pair_cor(L, pairs$i, pairs$j, p$min_common_samples)
+  pairs$r <- correlation$r
+  pairs$n_common <- correlation$n
+  pairs$drt <- abs(rt[pairs$i] - rt[pairs$j])
+  pairs$dmz <- abs(mz[pairs$i] - mz[pairs$j])
+  
+  # C. Candidate duplicates: complete linkage, every pair meets all thresholds.
+  tolerance <- pmax(pmax(mz[pairs$i], mz[pairs$j]) * p$dup_ppm * 1e-6, p$mz_abs_tol)
+  dup_edges <- !is.na(pairs$r) & pairs$r >= p$dup_cor &
+    pairs$drt <= p$dup_rt_tol & pairs$dmz <= tolerance
+  duplicate_groups <- .fa_complete_groups(n, pairs, dup_edges, p$dup_cor, p$max_component_size)
+  duplicate_of <- rep(NA_integer_, n)
+  for (group in split(which(!is.na(duplicate_groups)), stats::na.omit(duplicate_groups))) {
+    keeper <- group[order(-med[group], group)][1]
+    duplicate_of[setdiff(group, keeper)] <- keeper
+  }
+  active <- is.na(duplicate_of)
+  
+  # D. Isotopes before adducts; an isotope feature never becomes a root again.
+  iso <- .fa_find_isotopes(mz, pairs, active, Xs, p)
+  
+  # E. Monoisotopic clusters, then optional EIC refinement, never an EIC merge.
+  mono <- active & is.na(iso$isotope_of)
+  edges <- mono[pairs$i] & mono[pairs$j] & pairs$drt <= p$rt_tol &
+    !is.na(pairs$r) & pairs$r >= p$cor_threshold
+  cluster_id <- .fa_complete_groups(n, pairs, edges, p$cor_threshold, p$max_component_size)
+  eic_status <- "not_requested"
+  if (!is.null(eic_refine)) {
+    refinement <- eic_refine(cluster_id)
+    cluster_id <- refinement$groups
+    eic_status <- refinement$status
+  }
+  
+  # F. Adduct hypotheses compatible with the same neutral mass.
+  add <- .fa_find_adducts(mz, med, cluster_id, iso$charge, adducts, p)
+  quality <- .fa_pair_quality(n, pairs, add$compound_id, iso$isotope_of)
+  iso_rows <- which(!is.na(iso$isotope_of))
+  cluster_display <- cluster_id
+  compound_display <- add$compound_id
+  cluster_display[iso_rows] <- cluster_id[iso$isotope_of[iso_rows]]
+  compound_display[iso_rows] <- add$compound_id[iso$isotope_of[iso_rows]]
+  ratio_root <- rep(NA_real_, n)
+  for (i in iso_rows) {
+    ratios <- Xs[i, ] / Xs[iso$isotope_of[i], ]
+    ratios <- ratios[is.finite(ratios)]
+    if (length(ratios)) ratio_root[i] <- stats::median(ratios)
+  }
+  n_detected <- n_filled <- rep(NA_integer_, n)
+  if (!is.null(detected)) {
+    D <- .fa_clean(detected)
+    n_detected <- rowSums(!is.na(D[, !is_blank, drop = FALSE]))
+    n_filled <- rowSums(!is.na(Xs) & is.na(D[, !is_blank, drop = FALSE]))
+  }
+  annotation <- data.frame(
+    feature_id = ids, mzmed = mz, rtmed = rt, median_intensity = med,
+    n_detected_nonblank = n_detected, n_filled_nonblank = n_filled,
+    duplicate_of = ids[duplicate_of], isotope = iso$label,
+    isotope_of = ids[iso$isotope_of], isotope_ppm_error = iso$err,
+    isotope_cor = quality$isotope_cor, isotope_n_common = quality$isotope_n_common,
+    isotope_ratio_to_root = ratio_root, charge = iso$charge,
+    cluster_id = cluster_display, compound_id = compound_display,
+    adduct = add$adduct, neutral_mass = add$neutral_mass,
+    adduct_ppm_error = add$err, adduct_mz_ppm_error = add$mz_err,
+    adduct_alternatives = add$alternatives,
+    n_compound_features = quality$n_features, compound_min_cor = quality$min_cor,
+    compound_min_common = quality$min_common, is_primary = add$is_primary,
+    primary_feature = ids[add$primary], stringsAsFactors = FALSE
+  )
+  summary <- list(
+    n_features = n, n_pairs_tested = nrow(pairs),
+    n_pairs_cor_valid = sum(!is.na(pairs$r)),
+    n_duplicates = sum(!is.na(duplicate_of)), n_isotopes = length(iso_rows),
+    n_isotopes_heavy = sum(iso$label == "M+2 (Cl/Br/S)", na.rm = TRUE),
+    n_charge2_roots = sum(iso$charge == 2 & is.na(iso$isotope_of), na.rm = TRUE),
+    n_clusters = length(unique(stats::na.omit(cluster_id))),
+    n_compounds = length(unique(stats::na.omit(add$compound_id))),
+    n_adduct_features = sum(!is.na(add$compound_id)),
+    n_ambiguous = sum(!is.na(add$compound_id) & !is.na(add$alternatives)),
+    eic_status = eic_status
+  )
+  list(annotation = annotation, summary = summary,
+       internal = list(ids = ids, duplicate_of = duplicate_of, isotope_of = iso$isotope_of,
+                       primary = add$primary, is_primary = add$is_primary,
+                       cluster_id = cluster_id, compound_id = add$compound_id),
+       samples = list(blank = samples[is_blank], qc = samples[is_qc],
+                      correlation = samples[!is_blank & !is_qc], n_correlation = ncol(L)))
+}
+
+.fa_pair_quality <- function(n, pairs, compounds, isotope_of) {
+  out <- list(n_features = rep(NA_integer_, n), min_cor = rep(NA_real_, n),
+              min_common = rep(NA_integer_, n), isotope_cor = rep(NA_real_, n),
+              isotope_n_common = rep(NA_integer_, n))
+  # Double-precision key: avoids integer overflow with more than 46340 rows.
+  key <- as.double(pairs$i) * (n + 1) + pairs$j
+  pair_index <- function(a, b) match(as.double(pmin(a, b)) * (n + 1) + pmax(a, b), key)
+  rows <- which(!is.na(compounds))
+  for (members in split(rows, compounds[rows])) {
+    if (length(members) < 2L) next
+    comb <- utils::combn(members, 2)
+    idx <- pair_index(comb[1, ], comb[2, ])
+    out$n_features[members] <- length(members)
+    out$min_cor[members] <- min(pairs$r[idx])
+    out$min_common[members] <- min(pairs$n_common[idx])
+  }
+  rows <- which(!is.na(isotope_of))
+  idx <- pair_index(rows, isotope_of[rows])
+  out$isotope_cor[rows] <- pairs$r[idx]
+  out$isotope_n_common[rows] <- pairs$n_common[idx]
+  out
+}
+
+# =============================================================================
+# 4. Core computations kept: adduct table, pairs, Pearson and isotopes
+# =============================================================================
+.fa_default_adducts <- function() {
+  data.frame(
+    adduct = c("[M+H]+", "[M+Na]+", "[M+NH4]+", "[M+K]+", "[M+H-H2O]+", "[M+ACN+H]+",
+               "[M+2Na-H]+", "[2M+H]+", "[2M+Na]+", "[M+2H]2+",
+               "[M-H]-", "[M+FA-H]-", "[M+Cl]-", "[M+CH3COO]-", "[M-H2O-H]-",
+               "[M+Na-2H]-", "[2M-H]-", "[2M+FA-H]-", "[M-2H]2-"),
+    total_shift = c(1.007276, 22.989221, 18.033823, 38.963158, -17.003289, 42.033825,
+                    44.971160, 1.007276, 22.989221, 2.014552,
+                    -1.007276, 44.998201, 34.969402, 59.013851, -19.017841,
+                    20.974669, -1.007276, 44.998201, -2.014552),
+    charge   = c(1, 1, 1, 1, 1, 1, 1, 1, 1, 2, -1, -1, -1, -1, -1, -1, -1, -1, -2),
+    n_mol    = c(1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1),
+    polarity = c(rep("pos", 10), rep("neg", 9)),
+    freq     = c(3, 2, 2, 2, 2, 1, 1, 2, 1, 1, 3, 2, 2, 2, 1, 1, 1, 1, 1),
+    stringsAsFactors = FALSE
+  )
+}
+
+.fa_candidate_pairs <- function(rt, window, max_pairs = 5000000L) {
+  n <- length(rt)
+  if (n < 2) return(data.frame(i = integer(0), j = integer(0)))
+  o <- order(rt)
+  rs <- rt[o]
+  hi <- findInterval(rs + window, rs)
+  len <- pmax(hi - seq_len(n), 0L)
+  if (sum(as.numeric(len)) > max_pairs) {
+    stop("Number of pairs > max_candidate_pairs. Check the RT values and thresholds before raising this limit.", call. = FALSE)
+  }
+  a <- rep.int(seq_len(n), len)
+  b <- a + sequence(len)
+  i <- o[a]
+  j <- o[b]
+  data.frame(i = pmin(i, j), j = pmax(i, j))
+}
+
+.fa_pair_cor <- function(L, i, j, min_n) {
+  np <- length(i)
+  r <- rep(NA_real_, np)
+  nn <- integer(np)
+  if (np == 0) return(list(r = r, n = nn))
+  chunk <- max(1L, floor(5e6 / max(1L, ncol(L))))
+  for (s in seq(1L, np, by = chunk)) {
+    idx <- s:min(np, s + chunk - 1L)
+    x <- L[i[idx], , drop = FALSE]
+    y <- L[j[idx], , drop = FALSE]
+    m <- !is.na(x) & !is.na(y)
+    k <- rowSums(m)
+    # centre each row on its common observations for numerical stability
+    x[!m] <- 0
+    y[!m] <- 0
+    mx <- rowSums(x) / pmax(k, 1)
+    my <- rowSums(y) / pmax(k, 1)
+    xc <- (x - mx) * m
+    yc <- (y - my) * m
+    vx <- rowSums(xc * xc)
+    vy <- rowSums(yc * yc)
+    rr <- rowSums(xc * yc) / sqrt(vx * vy)
+    rr[k < min_n | !is.finite(rr) | vx <= 1e-12 | vy <= 1e-12] <- NA
+    r[idx] <- pmax(-1, pmin(1, rr))
+    nn[idx] <- as.integer(k)
+  }
+  list(r = r, n = nn)
+}
+
+.fa_components <- function(n, i, j) {
+  g <- igraph::make_graph(as.vector(rbind(i, j)), n = n, directed = FALSE)
+  igraph::components(g)$membership
+}
+
+.fa_find_isotopes <- function(mz, pairs, active, Xs, p) {
+  n <- length(mz)
+  out <- list(isotope_of = rep(NA_integer_, n), label = rep(NA_character_, n),
+              err = rep(NA_real_, n), charge = rep(NA_integer_, n))
+  sel <- active[pairs$i] & active[pairs$j] & pairs$drt <= p$rt_tol &
+    !is.na(pairs$r) & pairs$r >= p$iso_cor_threshold
+  if (!any(sel)) return(out)
+  
+  i <- pairs$i[sel]
+  j <- pairs$j[sel]
+  lighter <- mz[i] <= mz[j]
+  a <- ifelse(lighter, i, j)
+  b <- ifelse(lighter, j, i)
+  dmz <- mz[b] - mz[a]
+  tol <- pmax(mz[b] * p$ppm * 1e-6, p$mz_abs_tol)
+  
+  C13 <- 1.0033548                                  # 13C - 12C
+  HEAVY <- c(Cl = 1.9970499, Br = 1.9979535, S = 1.9957959)  # 37Cl-35Cl, 81Br-79Br, 34S-32S
+  rows <- list()
+  for (z in p$charges) {
+    for (k in seq_len(p$max_isotopes)) {
+      d <- dmz - k * C13 / z
+      hit <- abs(d) <= tol
+      if (any(hit)) {
+        rows[[length(rows) + 1]] <- data.frame(a = a[hit], b = b[hit], z = z, rank = k, type = "13C",
+                                               err = d[hit] / mz[b[hit]] * 1e6)
+      }
+    }
+    if (isTRUE(p$search_heavy_m2)) {
+      dh <- matrix(vapply(HEAVY, function(h) dmz - h / z, numeric(length(dmz))), ncol = length(HEAVY))
+      best <- dh[cbind(seq_len(nrow(dh)), max.col(-abs(dh), ties.method = "first"))]
+      hit <- abs(best) <= tol
+      if (any(hit)) {
+        rows[[length(rows) + 1]] <- data.frame(a = a[hit], b = b[hit], z = z, rank = 2L, type = "heavy",
+                                               err = best[hit] / mz[b[hit]] * 1e6)
+      }
+    }
+  }
+  if (!length(rows)) return(out)
+  cand <- do.call(rbind, rows)
+  cv <- list(a = cand$a, b = cand$b, z = cand$z, rank = cand$rank,
+             heavy = cand$type == "heavy", err = cand$err)
+  
+  # Median over samples of the per-sample intensity ratio (robust to outliers)
+  ratio_fun <- function(num, den) {
+    v <- Xs[num, ] / Xs[den, ]
+    v <- v[is.finite(v)]
+    if (length(v) >= p$min_common_samples) stats::median(v) else NA_real_
+  }
+  
+  by_root <- split(seq_along(cv$a), cv$a)
+  roots <- as.integer(names(by_root))
+  roots <- roots[order(mz[roots], roots)]
+  zs <- sort(unique(as.integer(p$charges)), decreasing = TRUE)  # z = 2 tested first: 0.5 spacing supports charge 2 (not a structural proof)
+  for (root in roots) {
+    if (!is.na(out$isotope_of[root])) next            # already an isotope of a lighter root
+    idx <- by_root[[as.character(root)]]
+    idx <- idx[is.na(out$isotope_of[cv$b[idx]])]
+    if (!length(idx)) next
+    for (z in zs) {
+      chain <- .fa_iso_chain(root, z, idx, cv, mz, p, ratio_fun)
+      if (length(chain$b)) {
+        out$isotope_of[chain$b] <- root
+        out$label[chain$b] <- chain$label
+        out$err[chain$b] <- round(chain$err, 2)
+        out$charge[c(root, chain$b)] <- as.integer(z)
+        break
+      }
+    }
+  }
+  out
+}
+
+.fa_iso_chain <- function(root, z, idx, cv, mz, p, ratio_fun) {
+  # Heuristic bound on the 13C/12C ratio: p/(1-p) * N_C_max.
+  # N_C_max = mz*z/12 approximates an all-carbon ion; not a formula model.
+  lambda_max <- (0.0107 / (1 - 0.0107)) * (mz[root] * z) / 12
+  b_out <- integer(0); lab_out <- character(0); err_out <- numeric(0)
+  prev <- root
+  c13 <- idx[!cv$heavy[idx] & cv$z[idx] == z]
+  for (k in seq_len(p$max_isotopes)) {
+    ck <- c13[cv$rank[c13] == k & !(cv$b[c13] %in% b_out)]
+    if (!length(ck)) break                             # chain broken: no M+k without M+(k-1)
+    rat <- vapply(cv$b[ck], ratio_fun, numeric(1), den = prev)
+    # M+1: Poisson bound on 13C, I(M+1) / I(M) <= factor x lambda_max.
+    # M+k (k >= 2): 18O, 15N, 2H also feed M+2, so the pure 13C Poisson bound is too strict.
+    # The safe rule is a decrease along the chain, relaxed to factor x lambda_max / k
+    # for very large ions where M+k can legitimately exceed M+(k-1).
+    bound <- if (k == 1) p$iso_ratio_factor * lambda_max else max(1, p$iso_ratio_factor * lambda_max / k)
+    ok <- !is.na(rat) & rat <= bound
+    if (!any(ok)) break
+    ck <- ck[ok]
+    pick <- ck[which.min(abs(cv$err[ck]))]
+    b_out <- c(b_out, cv$b[pick]); lab_out <- c(lab_out, paste0("M+", k)); err_out <- c(err_out, cv$err[pick])
+    prev <- cv$b[pick]
+  }
+  # Heavy-element M+2 (Cl, Br, S): not constrained by the 13C chain,
+  # but a charge 2 is only accepted when the 13C spacing already supported it
+  if (isTRUE(p$search_heavy_m2) && (length(b_out) > 0 || z == 1)) {
+    ch <- idx[cv$heavy[idx] & cv$z[idx] == z & !(cv$b[idx] %in% b_out)]
+    if (length(ch)) {
+      rat <- vapply(cv$b[ch], ratio_fun, numeric(1), den = root)
+      ok <- !is.na(rat) & rat <= p$heavy_max_ratio
+      if (any(ok)) {
+        ch <- ch[ok]
+        pick <- ch[which.min(abs(cv$err[ch]))]
+        b_out <- c(b_out, cv$b[pick]); lab_out <- c(lab_out, "M+2 (Cl/Br/S)"); err_out <- c(err_out, cv$err[pick])
+      }
+    }
+  }
+  list(b = b_out, label = lab_out, err = err_out)
+}
+
+.fa_lex_greater <- function(a, b) {
+  for (k in seq_along(a)) {
+    if (a[k] > b[k] + 1e-9) return(TRUE)
+    if (a[k] < b[k] - 1e-9) return(FALSE)
+  }
+  FALSE
+}
+
+.fa_get_fun <- function(name) {
+  for (pkg in c("xcms", "MsFeatures")) {
+    if (requireNamespace(pkg, quietly = TRUE) && name %in% getNamespaceExports(pkg)) {
+      return(getExportedValue(pkg, name))
+    }
+  }
+  stop("Function '", name, "' not found in xcms or MsFeatures.", call. = FALSE)
+}
+
+# =============================================================================
+# 5. Complete linkage shared by duplicates and adduct clusters
+# =============================================================================
+.fa_complete_groups <- function(n, pairs, selected, threshold, max_size) {
+  groups <- rep(NA_integer_, n)
+  if (!any(selected)) return(groups)
+  i <- pairs$i[selected]
+  j <- pairs$j[selected]
+  r <- pairs$r[selected]
+  component <- .fa_components(n, i, j)
+  nodes_by_component <- split(seq_len(n), component)
+  edges_by_component <- split(seq_along(i), component[i])
+  next_id <- 0L
+  for (name in names(edges_by_component)) {
+    nodes <- nodes_by_component[[name]]
+    if (length(nodes) > max_size)
+      stop("Component of ", length(nodes), " features > max_component_size. ",
+           "Check the parameters before raising this safeguard.", call. = FALSE)
+    edges <- edges_by_component[[name]]
+    distance <- matrix(2, length(nodes), length(nodes))
+    a <- match(i[edges], nodes)
+    b <- match(j[edges], nodes)
+    distance[cbind(a, b)] <- distance[cbind(b, a)] <- 1 - r[edges]
+    diag(distance) <- 0
+    partition <- stats::cutree(stats::hclust(stats::as.dist(distance), method = "complete"),
+                               h = 1 - threshold + 1e-12)
+    for (members in split(nodes, partition)) {
+      if (length(members) < 2L) next
+      next_id <- next_id + 1L
+      groups[members] <- next_id
+    }
+  }
+  groups
+}
+
+# =============================================================================
+# 6. Mass consensus: checked on the m/z of EACH ion
+# =============================================================================
+# mz_i = (n_i * M + shift_i) / abs(z_i)
+# M_i = (mz_i * abs(z_i) - shift_i) / n_i
+# tau_mz_i = max(ppm * mz_i * 1e-6, mz_abs_tol)
+# tau_M_i = tau_mz_i * abs(z_i) / n_i
+# The final consensus lies in the intersection of [M_i - tau_M_i, M_i + tau_M_i].
+# A median mass alone does not guarantee this condition.
+.fa_find_adducts <- function(mz, med, cluster_id, charge, adducts, p) {
+  n <- length(mz)
+  out <- list(compound_id = rep(NA_integer_, n), adduct = rep(NA_character_, n),
+              neutral_mass = rep(NA_real_, n), err = rep(NA_real_, n),
+              mz_err = rep(NA_real_, n), alternatives = rep(NA_character_, n),
+              is_primary = rep(FALSE, n), primary = rep(NA_integer_, n))
+  ad <- adducts[adducts$polarity == p$polarity, , drop = FALSE]
+  if (!nrow(ad)) stop("No adduct available for the requested polarity.", call. = FALSE)
+  if (all(is.na(cluster_id))) return(out)
+  next_compound <- 0L
+  rows <- which(!is.na(cluster_id))
+  for (features in split(rows, cluster_id[rows])) {
+    # One row per hypothesis (feature, adduct).
+    fi <- rep(features, each = nrow(ad))
+    ai <- rep(seq_len(nrow(ad)), times = length(features))
+    allowed <- ifelse(is.na(charge[fi]), abs(ad$charge[ai]) == 1,
+                      abs(ad$charge[ai]) == charge[fi])
+    fi <- fi[allowed]
+    ai <- ai[allowed]
+    masses <- (mz[fi] * abs(ad$charge[ai]) - ad$total_shift[ai]) / ad$n_mol[ai]
+    valid <- is.finite(masses) & masses > 0
+    fi <- fi[valid]
+    ai <- ai[valid]
+    masses <- masses[valid]
+    tolerances <- pmax(mz[fi] * p$ppm * 1e-6, p$mz_abs_tol) *
+      abs(ad$charge[ai]) / ad$n_mol[ai]
+    used <- integer()
+    alternatives <- list()
+    first <- TRUE
+    repeat {
+      live <- which(!fi %in% used)
+      if (length(unique(fi[live])) < 2L) break
+      F <- fi[live]
+      A <- ai[live]
+      M <- masses[live]
+      T <- tolerances[live]
+      best <- NULL
+      # No outer(M, M): only one window of candidates at a time.
+      for (anchor in seq_along(M)) {
+        candidate <- which(abs(M - M[anchor]) <= T)
+        if (length(candidate) < 2L) next
+        candidate <- candidate[order(abs(M[candidate] - M[anchor]) / T[candidate],
+                                     -ad$freq[A[candidate]], F[candidate], A[candidate])]
+        # Explicit greedy selection: no repeated feature nor adduct type.
+        chosen <- integer()
+        for (k in candidate) {
+          if (!(F[k] %in% F[chosen]) && !(A[k] %in% A[chosen])) chosen <- c(chosen, k)
+        }
+        if (length(chosen) < 2L) next
+        if (p$require_monomer && !any(ad$n_mol[A[chosen]] == 1L)) next
+        lower <- max(M[chosen] - T[chosen])
+        upper <- min(M[chosen] + T[chosen])
+        if (lower > upper) next
+        consensus <- min(max(stats::median(M[chosen]), lower), upper)
+        predicted <- (ad$n_mol[A[chosen]] * consensus + ad$total_shift[A[chosen]]) /
+          abs(ad$charge[A[chosen]])
+        error_mz <- (mz[F[chosen]] - predicted) / mz[F[chosen]] * 1e6
+        score <- c(length(chosen), sum(ad$freq[A[chosen]]),
+                   -mean(abs(error_mz)), sum(log10(med[F[chosen]] + 1)))
+        if (first) alternatives[[length(alternatives) + 1L]] <-
+          data.frame(feature = F[chosen], label = as.character(ad$adduct[A[chosen]]))
+        if (is.null(best) || .fa_lex_greater(score, best$score))
+          best <- list(score = score, chosen = chosen, consensus = consensus, error_mz = error_mz)
+      }
+      first <- FALSE
+      if (is.null(best)) break
+      chosen <- best$chosen
+      members <- F[chosen]
+      frequencies <- ad$freq[A[chosen]]
+      next_compound <- next_compound + 1L
+      out$compound_id[members] <- next_compound
+      out$adduct[members] <- as.character(ad$adduct[A[chosen]])
+      out$neutral_mass[members] <- best$consensus
+      out$err[members] <- (M[chosen] - best$consensus) / best$consensus * 1e6
+      out$mz_err[members] <- best$error_mz
+      ordering <- if (p$primary_rule == "intensity") order(-med[members], -frequencies, members) else
+        order(-frequencies, -med[members], members)
+      primary <- members[ordering[1]]
+      out$is_primary[primary] <- TRUE
+      out$primary[members] <- primary
+      used <- c(used, members)
+    }
+    if (length(alternatives)) {
+      alt <- unique(do.call(rbind, alternatives))
+      for (f in unique(alt$feature)) {
+        others <- setdiff(alt$label[alt$feature == f], out$adduct[f])
+        if (length(others)) out$alternatives[f] <- paste(sort(others), collapse = " | ")
+      }
+    }
+  }
+  out
+}
+
+# =============================================================================
+# 7. Optional EIC refinement and trace of its execution
+# =============================================================================
+.fa_eic_refine <- function(xdata, cluster_id, p) {
+  if (all(is.na(cluster_id))) return(list(groups = cluster_id, status = "no_clusters"))
+  tryCatch({
+    setter <- .fa_get_fun("featureGroups<-")
+    groups <- ifelse(is.na(cluster_id), NA_character_, sprintf("C%06d", cluster_id))
+    xdata <- setter(xdata, value = groups)
+    group_features <- .fa_get_fun("groupFeatures")
+    eic_param <- .fa_get_fun("EicSimilarityParam")
+    get_groups <- .fa_get_fun("featureGroups")
+    xdata <- group_features(xdata, param = eic_param(threshold = p$eic_threshold,
+                                                     n = p$eic_n, value = "into"))
+    refined <- as.character(get_groups(xdata))
+    if (length(refined) != length(cluster_id)) stop("Incompatible number of EIC groups.")
+    # Intersecting with the initial group forbids any merging of clusters.
+    joint <- paste(cluster_id, refined, sep = ":")
+    joint[is.na(cluster_id) | is.na(refined)] <- NA_character_
+    sizes <- table(joint)
+    labels <- names(sizes)[sizes >= 2L]
+    out <- match(joint, labels)
+    list(groups = out, status = "applied")
+  }, error = function(e) {
+    if (p$eic_on_error == "stop") stop("EIC refinement failed: ", conditionMessage(e), call. = FALSE)
+    warning("EIC refinement failed; fallback to initial clusters explicitly allowed: ",
+            conditionMessage(e), call. = FALSE)
+    list(groups = cluster_id, status = paste0("failed_fallback: ", conditionMessage(e)))
+  })
+}
+
+# =============================================================================
+# 8. Reductions: a single mapping and distinct matrices
+# =============================================================================
+.fa_target_map <- function(internal, merge_isotopes, merge_adducts, merge_duplicates) {
+  n <- length(internal$ids)
+  target_iso <- target_adduct <- seq_len(n)
+  if (merge_isotopes) {
+    rows <- which(!is.na(internal$isotope_of))
+    target_iso[rows] <- internal$isotope_of[rows]
+  }
+  if (merge_adducts) {
+    rows <- which(!is.na(internal$primary))
+    target_adduct[rows] <- internal$primary[rows]
+  }
+  target <- target_adduct[target_iso]
+  if (merge_duplicates) {
+    rows <- which(!is.na(internal$duplicate_of))
+    target[rows] <- target[internal$duplicate_of[rows]]
+  }
+  if (anyNA(target) || any(target[target] != target))
+    stop("Internal error: reduction mapping is not idempotent.", call. = FALSE)
+  target
+}
+
+.fa_merge <- function(intensities, internal, merge_isotopes, merge_adducts,
+                      merge_duplicates = TRUE) {
+  mat <- .fa_clean(intensities) # same NA definition as in the annotation
+  n <- nrow(mat)
+  duplicates <- if (merge_duplicates) which(!is.na(internal$duplicate_of)) else integer()
+  n_filled <- 0L
+  # Coalescence: the keeper retains its value; only its NA are replaced.
+  # The maximum can bias the signal upwards. The representative matrix
+  # below never performs this substitution.
+  for (keeper in unique(internal$duplicate_of[duplicates])) {
+    members <- duplicates[internal$duplicate_of[duplicates] == keeper]
+    fill <- suppressWarnings(apply(mat[members, , drop = FALSE], 2, max, na.rm = TRUE))
+    fill[!is.finite(fill)] <- NA_real_
+    missing <- is.na(mat[keeper, ])
+    n_filled <- n_filled + sum(missing & !is.na(fill))
+    mat[keeper, missing] <- fill[missing]
+  }
+  target <- .fa_target_map(internal, merge_isotopes, merge_adducts, merge_duplicates)
+  contribute <- setdiff(seq_len(n), duplicates)
+  values <- mat[contribute, , drop = FALSE]
+  observed <- !is.na(values)
+  values[!observed] <- 0
+  summed <- rowsum(values, target[contribute], reorder = TRUE)
+  counts <- rowsum(observed * 1L, target[contribute], reorder = TRUE)
+  summed[counts == 0L] <- NA_real_
+  kept <- as.integer(rownames(summed))
+  rownames(summed) <- internal$ids[kept]
+  rownames(counts) <- internal$ids[kept]
+  list(matrix = summed, counts = counts, final_target = target,
+       kept = seq_len(n) %in% kept, n_duplicate_cells_filled = n_filled)
+}
+
+.fa_finish <- function(input, res, p) {
+  merged <- .fa_merge(input$raw, res$internal, p$merge_isotopes, p$merge_adducts,
+                      p$merge_duplicates)
+  # Always a second reduction: one fixed ion per group, no addition,
+  # no replacement by another adduct when the primary is missing.
+  representative_target <- .fa_target_map(res$internal, TRUE, TRUE, TRUE)
+  representative_rows <- sort(unique(representative_target))
+  representative <- .fa_clean(input$raw)[representative_rows, , drop = FALSE]
+  ann <- res$annotation
+  ann$merged_into <- ifelse(merged$final_target == seq_len(nrow(ann)), NA_character_,
+                            ann$feature_id[merged$final_target])
+  ann$kept <- merged$kept
+  ann$representative_feature <- ann$feature_id[representative_target]
+  ann$kept_representative <- seq_len(nrow(ann)) %in% representative_rows
+  defs <- input$defs
+  for (nm in setdiff(names(ann), c("feature_id", "mzmed", "rtmed"))) defs[[nm]] <- ann[[nm]]
+  # These three columns keep their row indices for compatibility.
+  defs$duplicate_of <- res$internal$duplicate_of
+  defs$isotope_of <- res$internal$isotope_of
+  defs$primary_feature <- res$internal$primary
+  defs$group_id <- res$internal$cluster_id
+  defs$fused <- !merged$kept
+  summary <- res$summary
+  summary$n_merged_rows <- nrow(merged$matrix)
+  summary$n_representative_rows <- nrow(representative)
+  summary$n_duplicate_cells_filled <- merged$n_duplicate_cells_filled
+  parameters <- c(p, list(
+    script_version = "2.0.0", blank_samples = res$samples$blank, qc_samples = res$samples$qc,
+    correlation_samples = res$samples$n_correlation,
+    correlation_sample_names = res$samples$correlation,
+    feature_values_method = "medret", intensity_value = "into",
+    summary = summary, r_version = R.version.string,
+    igraph_version = as.character(utils::packageVersion("igraph")),
+    run_date = format(Sys.time(), "%Y-%m-%d %H:%M:%S %Z")))
+  list(feature_definitions = defs, feature_intensities = input$raw,
+       cleaned_feature_intensities = .fa_clean(input$raw),
+       detected_feature_intensities = input$detected,
+       merged_feature_intensities = merged$matrix,
+       merged_contributor_counts = merged$counts,
+       representative_feature_intensities = representative,
+       annotation = ann, adducts_merged = p$merge_adducts,
+       isotopes_merged = p$merge_isotopes, duplicates_merged = p$merge_duplicates,
+       n_groups_detected = summary$n_compounds, n_isotopes_detected = summary$n_isotopes,
+       summary = summary, params = parameters)
+}
+
+.fa_write_results <- function(result, data_folder, param_folder, output_subdir) {
+  out_data <- file.path(data_folder, output_subdir)
+  out_param <- file.path(param_folder, output_subdir)
+  for (folder in unique(c(out_data, out_param))) {
+    if (!dir.exists(folder) && !dir.create(folder, recursive = TRUE))
+      stop("Cannot create: ", folder, call. = FALSE)
+  }
+  write_matrix <- function(x, filename) {
+    if (is.null(x)) return(invisible(NULL))
+    table <- data.frame(feature_id = rownames(x), x, row.names = NULL, check.names = FALSE)
+    utils::write.csv(table, file.path(out_data, filename), row.names = FALSE)
+  }
+  write_matrix(result$feature_intensities, "raw_feature_intensities.csv")
+  write_matrix(result$detected_feature_intensities, "detected_feature_intensities.csv")
+  write_matrix(result$merged_feature_intensities, "merged_feature_intensities.csv")
+  write_matrix(result$representative_feature_intensities, "representative_feature_intensities.csv")
+  write_matrix(result$merged_contributor_counts, "merged_contributor_counts.csv")
+  utils::write.csv(result$annotation, file.path(out_data, "feature_annotations.csv"), row.names = FALSE)
+  jsonlite::write_json(result$params, file.path(out_param, "adduct_search_params.json"),
+                       auto_unbox = TRUE, pretty = TRUE, digits = NA, na = "null")
+}
+
+# =============================================================================
+# 9. Shiny interface: input only, no scientific computation
+# =============================================================================
+.fa_param_app <- function(p) {
+  labels <- c(
+    ppm = "Mass tolerance (ppm)", mz_abs_tol = "Mass floor (Da)",
+    rt_tol = "Maximum RT difference (s)", cor_threshold = "Minimum adduct correlation",
+    min_common_samples = "Minimum number of common samples",
+    dup_ppm = "Duplicates - ppm tolerance", dup_rt_tol = "Duplicates - RT (s)",
+    dup_cor = "Duplicates - correlation", max_isotopes = "Maximum 13C rank",
+    iso_cor_threshold = "Isotopes - correlation", iso_ratio_factor = "Isotope ratio factor",
+    heavy_max_ratio = "Maximum heavy M+2 / M ratio", eic_threshold = "EIC threshold",
+    eic_n = "Number of EIC samples", max_candidate_pairs = "Candidate pairs limit",
+    max_component_size = "Maximum component size")
+  booleans <- c(cor_use_filled = "Include gap filling in correlations",
+                search_heavy_m2 = "Search M+2 of Cl / Br / S",
+                require_monomer = "Require at least one monomer ion",
+                use_eic = "Refine clusters by EIC (raw files required)")
+  inputs <- lapply(names(labels), function(nm) shiny::numericInput(nm, labels[[nm]], p[[nm]]))
+  checks <- lapply(names(booleans), function(nm) shiny::checkboxInput(nm, booleans[[nm]], p[[nm]]))
+  ui <- shiny::fluidPage(
+    shiny::titlePanel("Candidate adduct and isotope annotation"),
+    shiny::p("A mass / RT / correlation association is a hypothesis. The report explains each threshold."),
+    shiny::fluidRow(shiny::column(6,
+                                  shiny::selectInput("polarity", "Polarity", c("pos", "neg"), p$polarity),
+                                  shiny::checkboxGroupInput("charges", "Charges tested", c("1", "2"), as.character(p$charges)),
+                                  shiny::selectInput("primary_rule", "Primary selection", c("prior", "intensity"), p$primary_rule),
+                                  shiny::selectInput("eic_on_error", "On EIC failure", c("stop", "warn"), p$eic_on_error),
+                                  checks), shiny::column(6, inputs)),
+    shiny::actionButton("submit", "Run annotation"), shiny::actionButton("cancel", "Cancel"))
+  server <- function(input, output, session) {
+    done <- FALSE
+    session$onSessionEnded(function() if (!done) shiny::stopApp(NULL))
+    shiny::observeEvent(input$cancel, { done <<- TRUE; shiny::stopApp(NULL) })
+    shiny::observeEvent(input$submit, {
+      values <- p
+      for (nm in c(names(labels), names(booleans), "polarity", "primary_rule", "eic_on_error"))
+        values[[nm]] <- input[[nm]]
+      values$charges <- as.integer(input$charges)
+      errors <- .fa_validate_params(values)
+      if (length(errors)) { shiny::showNotification(paste(errors, collapse = "\n"), type = "error"); return() }
+      done <<- TRUE
+      shiny::stopApp(values)
+    })
+  }
+  shiny::runApp(shiny::shinyApp(ui, server), launch.browser = TRUE)
+}
+
+.fa_merge_app <- function(summary, p) {
+  flags <- c(merge_duplicates = "Coalesce candidate duplicates",
+             merge_isotopes = "Sum isotopes into their root",
+             merge_adducts = "Sum adducts into their primary")
+  ui <- shiny::fluidPage(
+    shiny::titlePanel("Choose the reductions"),
+    shiny::p(sprintf("%d features; %d candidate duplicates; %d isotopes; %d candidate adduct groups.",
+                     summary$n_features, summary$n_duplicates, summary$n_isotopes, summary$n_compounds)),
+    shiny::p("Summing changes intensities, missing values and potentially CVs."),
+    shiny::p("The representative table will also be exported: one fixed ion per group, no sum or substitution."),
+    lapply(names(flags), function(nm) shiny::checkboxInput(nm, flags[[nm]], p[[nm]])),
+    shiny::actionButton("submit", "Export"), shiny::actionButton("cancel", "Cancel"))
+  server <- function(input, output, session) {
+    done <- FALSE
+    session$onSessionEnded(function() if (!done) shiny::stopApp(NULL))
+    shiny::observeEvent(input$cancel, { done <<- TRUE; shiny::stopApp(NULL) })
+    shiny::observeEvent(input$submit, {
+      done <<- TRUE
+      values <- lapply(names(flags), function(nm) isTRUE(input[[nm]]))
+      names(values) <- names(flags)
+      shiny::stopApp(values)
+    })
+  }
+  shiny::runApp(shiny::shinyApp(ui, server), launch.browser = TRUE)
 }
 
 ########################################################################################################################
@@ -3058,9 +3509,9 @@ export_MS2_spectra <- function(xdata_filled, param_folder, data_folder) {
   
   feat_ids_with_ms2 <- unique(feature_ms2$feature_id)
   message("Features with MS2 : ", length(feat_ids_with_ms2), "/",
-      nrow(featureDefinitions(xdata_grouped)),
-      sprintf("(%.1f%%)", 100 * length(feat_ids_with_ms2) /
-                nrow(featureDefinitions(xdata_grouped))), "\n")
+          nrow(featureDefinitions(xdata_grouped)),
+          sprintf("(%.1f%%)", 100 * length(feat_ids_with_ms2) /
+                    nrow(featureDefinitions(xdata_grouped))), "\n")
   
   
   # Construction of a consensus spectrum per feature (merging the peaks of all candidates for the feature, across all samples)
@@ -3094,7 +3545,7 @@ export_MS2_spectra <- function(xdata_filled, param_folder, data_folder) {
   # Formatting 
   
   ms2_consensus <- formatSpectraForGNPS(ms2_consensus)
-    
+  
   # # Feature <-> scanIndex mapping table
   # 
   # feature_metadata <- as.data.frame(xcms::featureDefinitions(xdata_grouped))
@@ -3151,7 +3602,7 @@ export_MS2_spectra <- function(xdata_filled, param_folder, data_folder) {
     file    = file.path(export_GNPS2_dir, "output_MS2_spectra.mgf")
   )
   message("MGF file exported : ", file.path(export_GNPS2_dir, "output_MS2_spectra.mgf"), "\n")
-
+  
   # Save parameters
   
   param_dir <- file.path(param_folder, "1_Pre-processing", "MS2_export")
@@ -3397,7 +3848,7 @@ create_individual_standard_pdfs <- function(peak_picking_results,
 #'         - `filtered_data`: Data filtered by RT window
 #'         - `rt_parameters`: RT parameters used
 #'         
-         
+
 filter_by_RT_window <- function(raw_intensity_matrix, feature_metadata, param_folder, data_folder) {
   
   # Internal function for the Shiny interface
@@ -3515,11 +3966,11 @@ filter_by_RT_window <- function(raw_intensity_matrix, feature_metadata, param_fo
   # Save parameters and data
   
   write_json(RT_window_list, pretty = TRUE, auto_unbox = TRUE,
-                       path = file.path(param_folder, "2_Processing", "02_RT_filter", "RT_window_Param.json"))
+             path = file.path(param_folder, "2_Processing", "02_RT_filter", "RT_window_Param.json"))
   
   write.csv(output_step1_RT_window,
-                   file = file.path(data_folder, "2_Processing", "02_RT_filter", "output_step1_RT_window.csv"),
-                   row.names = TRUE)
+            file = file.path(data_folder, "2_Processing", "02_RT_filter", "output_step1_RT_window.csv"),
+            row.names = TRUE)
   
   # Return results
   
@@ -3554,7 +4005,7 @@ filter_by_RT_window <- function(raw_intensity_matrix, feature_metadata, param_fo
 #' 
 
 filter_by_blank <- function(input_data, blank_names, sample_names, qc_names,
-                         param_folder, data_folder) {
+                            param_folder, data_folder) {
   
   ######################################  User choice  #############################
   
@@ -3578,7 +4029,7 @@ filter_by_blank <- function(input_data, blank_names, sample_names, qc_names,
             numericInput("ratio_threshold",
                          "Ratio threshold (median bio / median blank)",
                          value = 3, min = 1, step = 0.5)
-            ),
+          ),
           br(),
           
           actionButton("submit", "Submit", class = "btn-success")
@@ -3608,7 +4059,7 @@ filter_by_blank <- function(input_data, blank_names, sample_names, qc_names,
                      tags$b("Ratio threshold"),
                      p("Minimum ratio between median intensity in biological samples and median intensity in blanks. A feature below this ratio is considered blank-dominated."),
                      
-                     )
+            )
           )
         )
       )
@@ -4417,7 +4868,7 @@ filter_sample_outliers <- function(input_data,
       "))),
       
       titlePanel(div(paste("Sample Outlier Filter —", save_text), style = "font-weight: bold;")
-                 ),
+      ),
       
       sidebarLayout(
         
@@ -4968,7 +5419,7 @@ filter_sample_outliers <- function(input_data,
 #'         - `miss_val_chart`: Combined chart of missing values before/after filtering
 #'         
 
-        
+
 filter_by_missing_values <- function(input_data, bio_names, qc_names, metadata_table, data_folder, chart_folder) {
   
   get_miss_val_threshold_gui <- function(zero_proportions_general, zero_proportions_BIO, zero_proportions_QC, zero_proportions_groups) {
@@ -5131,7 +5582,7 @@ filter_by_missing_values <- function(input_data, bio_names, qc_names, metadata_t
     rownames_to_column("Sample") %>%
     left_join(metadata_table[, c("SampleName", "Group")], by = c("Sample" = "SampleName")) %>%
     group_by(Group) %>%
-    summarise(across(where(is.numeric), ~ mean(.x == 0), .names = "Miss_Val_Proportion_{.col}")) %>%
+    summarise(across(where(is.numeric), ~ mean(.x == 0), .names = "{.col}")) %>%
     ungroup()
   
   # Run the GUI and retrieve parameters
@@ -5642,7 +6093,7 @@ review_imputation_results <- function(imputed_data, original_data, validation_re
   res <- validation_results$results
   
   median_log2fc    <- median(res$Log2_FC, na.rm = TRUE)
-  pct_negative_fc  <- mean(res$Log2_FC < 0, na.rm = TRUE) * 100
+  pct_negative_fc  <- mean(res$Log2_FC <= 0, na.rm = TRUE) * 100
   median_iqr_ratio <- median(res$IQR_Ratio, na.rm = TRUE)
   pct_flagged      <- mean(validation_results$flagged_vars$is_flag, na.rm = TRUE) * 100
   
@@ -5827,21 +6278,12 @@ review_imputation_results <- function(imputed_data, original_data, validation_re
 #'          The choice between robust (MAD/median) and standard (SD/mean) CV is automatically suggested
 #'          based on the proportion of non-normal variables (threshold: 10%).   
 
-        
+
 apply_exploratory_CV_filter <- function(input_data, qc_names, metadata_table, param_folder, data_folder) {
   
   # Normality test function (Shapiro-Wilk)
   
   normality_test <- function() {
-    
-    n_qc <- length(qc_names)
-    
-    if (n_qc < 5) {
-      message(sprintf(
-        "Please note : %d QC pool available (all features treated as non-normal by default).",
-        n_qc
-      ))
-    }
     
     shapiro_results <- sapply(1:nrow(input_data %>% select(all_of(qc_names))),
                               function(i) {
@@ -5906,6 +6348,7 @@ apply_exploratory_CV_filter <- function(input_data, qc_names, metadata_table, pa
           br(),
           h4("Normality-based recommendation :"),
           verbatimTextOutput("normality_msg"),
+          uiOutput("qc_warning")
         )
       )
     )
@@ -5923,6 +6366,17 @@ apply_exploratory_CV_filter <- function(input_data, qc_names, metadata_table, pa
           paste0(
             round((1-non_normal_prop) * 100, 1), " % of variables are normally distributed.\n",
             "➡ Recommendation : Standard CV"
+          )
+        }
+      })
+      
+      output$qc_warning <- renderUI({
+        n_qc <- length(qc_names)
+        if (n_qc < 5) {
+          tags$p(
+            style = "color: grey; font-size: 0.9em;",
+            icon("info-circle", style = "color: grey; margin-right: 5px;"),
+            sprintf("Please note : %d QC pool available < 5 (all features treated as non-normal by default).", n_qc)
           )
         }
       })
@@ -5992,7 +6446,7 @@ apply_exploratory_CV_filter <- function(input_data, qc_names, metadata_table, pa
   non_normal_prop <- normality_test()
   
   # Select CV threshold
-
+  
   CV_threshold_list <- get_CV_threshold_gui(non_normal_prop)
   
   if (is.null(CV_threshold_list)) {
@@ -6058,15 +6512,6 @@ apply_validation_CV_filter <- function(input_data, qc_names, metadata_table, par
   
   normality_test <- function() {
     
-    n_qc <- length(qc_names)
-    
-    if (n_qc < 5) {
-      message(sprintf(
-        "Please note : %d QC pool available (all features treated as non-normal by default).",
-        n_qc
-      ))
-    }
-    
     shapiro_results <- sapply(1:nrow(input_data %>% select(all_of(qc_names))),
                               function(i) {
                                 x <- na.omit(as.numeric(input_data[i, qc_names]))
@@ -6128,6 +6573,7 @@ apply_validation_CV_filter <- function(input_data, qc_names, metadata_table, par
           br(),
           h4("Normality-based recommendation :"),
           verbatimTextOutput("normality_msg"),
+          uiOutput("qc_warning")
         )
       )
     )
@@ -6145,6 +6591,17 @@ apply_validation_CV_filter <- function(input_data, qc_names, metadata_table, par
           paste0(
             round((1-non_normal_prop) * 100, 1), " % of variables are normally distributed.\n",
             "➡ Recommendation : Standard CV"
+          )
+        }
+      })
+      
+      output$qc_warning <- renderUI({
+        n_qc <- length(qc_names)
+        if (n_qc < 5) {
+          tags$p(
+            style = "color: grey; font-size: 0.9em;",
+            icon("info-circle", style = "color: grey; margin-right: 5px;"),
+            sprintf("Please note : %d QC pool available < 5 (all features treated as non-normal by default).", n_qc)
           )
         }
       })
@@ -6948,7 +7405,7 @@ run_loess_validation_gui <- function(input_data, metadata_table, qc_names) {
                       min = 0.2, max = 1.0, value = 0.75, step = 0.05)
         ),
         helpText(tags$p("Auto : optimal span selected by LOOCV for each feature ", tags$em("(Dunn et al. 2011, Nature)"),
-                       ".")),
+                        ".")),
         br(),
         
         actionButton("run_loess", "Run / Recalculate", class = "btn-primary"),
@@ -7717,7 +8174,7 @@ perform_normalization <- function(input_data, metadata_table, qc_names,
   
   if(method == "BRDG (Bridge Normalization)" || method == "PQN (Probabilistic Quotient Normalization)") {
     plots$qc_drift <- plot_qc_drift_global(input_data, normalized_data,
-                                    metadata_table, qc_names)
+                                           metadata_table, qc_names)
   }
   
   # User Visualisation
@@ -7897,7 +8354,7 @@ perform_normalization <- function(input_data, metadata_table, qc_names,
 #' 
 
 perform_data_transformation <- function(input_data, bio_names, qc_names, param_folder, data_folder, chart_folder,
-                                                         epsilon = 1e-9, tic_decision = FALSE) {
+                                        epsilon = 1e-9, tic_decision = FALSE) {
   
   
   # Apply transformation based on user choice
@@ -8450,14 +8907,14 @@ run_pca_qc <- function(input_data, metadata_table, qc_names, bio_names, data_fol
       
       res_quality <- pcaMethods::pca(
         samples_matrix,
-        method = if (any(is.na(samples_matrix))) "svd" else "rnipals",
+        method = if (any(is.na(samples_matrix))) "rnipals" else "svd",
         nPcs   = min(10L, ncol(samples_matrix) - 1L),
         cv     = "q2", scale = input$scale, center = input$center
       )
       
       pcaMethods::pca(
         samples_matrix,
-        method = if (any(is.na(samples_matrix))) "svd" else "rnipals",
+        method = if (any(is.na(samples_matrix))) "rnipals" else "svd",
         nPcs   = pmax(which.max(res_quality@cvstat), 2L),
         scale  = input$scale, center = input$center
       )
@@ -8557,14 +9014,14 @@ run_pca_qc <- function(input_data, metadata_table, qc_names, bio_names, data_fol
             (Group == "QC"  & input$show_labels_QC) |
               (Group == "Bio" & input$show_labels_BIO)
           )
-
-          p <- p + ggrepel::geom_text_repel(
-            data         = df_labels,
-            aes(label    = Sample),
-            size         = 3,
-            max.overlaps = 10,
-            show.legend  = FALSE
-          )
+        
+        p <- p + ggrepel::geom_text_repel(
+          data         = df_labels,
+          aes(label    = Sample),
+          size         = 3,
+          max.overlaps = 10,
+          show.legend  = FALSE
+        )
       }
       
       if (!is.null(stats))
@@ -9294,6 +9751,12 @@ annotate_GNPS_EB <- function(param_folder, data_folder) {
   )
   gnps_raw <- as.data.frame(gnps_raw)
   
+  # Harmonize alternative column name
+  
+  if ("COMPOUND_NAME" %in% colnames(gnps_raw) && !"NAME" %in% colnames(gnps_raw)) {
+    gnps_raw <- dplyr::rename(gnps_raw, NAME = COMPOUND_NAME)
+  }
+  
   required_cols <- c("query_scan", "cosine", "delta_mz", "NAME")
   missing_cols  <- setdiff(required_cols, colnames(gnps_raw))
   
@@ -9387,6 +9850,8 @@ annotate_GNPS_EB <- function(param_folder, data_folder) {
 #' 
 
 perform_annotation_Compound_Discoverer <- function(feature_metadata, data_folder, param_folder) {
+  
+  options(shiny.maxRequestSize = 100 * 1024^2)  # 100 MB
   
   # Single Shiny UI gathering the annotation choice, file upload and all parameters
   
@@ -11006,7 +11471,7 @@ run_hcpc_analysis <- function(stats_matrix, hypo_name, paths, chosen_color, coor
 #' 
 
 run_heatmap_analysis <- function(stats_matrix, metadata_hypo, hypo_name, paths, chosen_color){
-
+  
   # Heatmap will not be performed if NA in data
   
   if(any(is.na(stats_matrix))){
@@ -11184,32 +11649,32 @@ run_heatmap_analysis <- function(stats_matrix, metadata_hypo, hypo_name, paths, 
       
       heatmap_reactive <- reactive({
         ComplexHeatmap::Heatmap(stats_matrix,
-                name = "Value",
-                top_annotation = col_ann,
-                show_row_names = input$show_row_names,
-                column_title = "Samples",
-                row_title = "Features",
-                row_names_side = "left",
-                cluster_columns = input$cluster_columns,
-                cluster_rows = input$cluster_rows,
-                clustering_method_columns = input$clustering_method_columns,
-                clustering_method_rows = input$clustering_method_rows,
-                clustering_distance_columns = input$clustering_distance_columns,
-                clustering_distance_rows = input$clustering_distance_rows,
-                column_order = if(input$use_column_order && !input$cluster_columns) {
-                  column_custom_order
-                } else {
-                  NULL
-                },
-                column_split = if(input$use_column_split && !input$cluster_columns) column_split_vec else NULL,
-                col = turbo(256),
-                show_row_dend = input$show_row_dend,
-                row_dend_width = unit(input$row_dend_width, "cm"),
-                column_dend_height = unit(input$column_dend_height, "cm"),
-                row_dend_gp = gpar(col = "black", lwd = 1),
-                row_gap = unit(input$row_gap, "cm"),
-                row_km = input$row_km,
-                show_parent_dend_line = input$show_parent_dend_line
+                                name = "Value",
+                                top_annotation = col_ann,
+                                show_row_names = input$show_row_names,
+                                column_title = "Samples",
+                                row_title = "Features",
+                                row_names_side = "left",
+                                cluster_columns = input$cluster_columns,
+                                cluster_rows = input$cluster_rows,
+                                clustering_method_columns = input$clustering_method_columns,
+                                clustering_method_rows = input$clustering_method_rows,
+                                clustering_distance_columns = input$clustering_distance_columns,
+                                clustering_distance_rows = input$clustering_distance_rows,
+                                column_order = if(input$use_column_order && !input$cluster_columns) {
+                                  column_custom_order
+                                } else {
+                                  NULL
+                                },
+                                column_split = if(input$use_column_split && !input$cluster_columns) column_split_vec else NULL,
+                                col = turbo(256),
+                                show_row_dend = input$show_row_dend,
+                                row_dend_width = unit(input$row_dend_width, "cm"),
+                                column_dend_height = unit(input$column_dend_height, "cm"),
+                                row_dend_gp = gpar(col = "black", lwd = 1),
+                                row_gap = unit(input$row_gap, "cm"),
+                                row_km = input$row_km,
+                                show_parent_dend_line = input$show_parent_dend_line
         )
       })
       
@@ -12026,10 +12491,10 @@ run_plsda_analysis <- function(stats_matrix, hypo_name, paths, chosen_color, VIP
   
   set.seed(31)
   boot_results <- bootstrap_cv_plsda(X, Y, crossval_fold, n_comp, n_boot = 100)
- 
+  
   
   # ── Permutation p-value ───────────────────────────────────────────────────
-
+  
   perm_vals        <- model@suppLs$permMN
   ref_Q2           <- perm_vals[1, "Q2(cum)"]
   perm_df          <- data.frame(Q2 = perm_vals[-1, "Q2(cum)"])
@@ -12071,7 +12536,7 @@ run_plsda_analysis <- function(stats_matrix, hypo_name, paths, chosen_color, VIP
     dplyr::arrange(dplyr::desc(vip_score))
   
   # ── Stats label ───────────────────────────────────────────────────────────
-
+  
   n_groups <- length(levels(Y))
   chance_BA <- 1 / n_groups
   
@@ -12435,8 +12900,8 @@ run_vip_summary_plot <- function(pre_scaled_matrix, matrix_choice, metadata_hypo
       X_t <- X_t %>%
         dplyr::mutate(
           Only_annot_unique_name = ifelse(is.na(Only_annot_unique_name),
-                                      Feature_name_code,
-                                      Only_annot_unique_name)
+                                          Feature_name_code,
+                                          Only_annot_unique_name)
         )
     }
     
@@ -13731,8 +14196,8 @@ run_RF_analysis <- function(stats_matrix, hypo_name, paths){
   ))
   
 }  
-  
-  
+
+
 
 #-------------------------------------------------------------------------------------------------------------------
 
@@ -14611,9 +15076,9 @@ run_volcano_analysis <- function(pre_scaled_matrix,
     )
   ))
 }
-  
-  
-  
+
+
+
 ########################################################################################################################
 ####################################          GLOBAL STATISTICAL  SUMMARY              #################################
 ########################################################################################################################
