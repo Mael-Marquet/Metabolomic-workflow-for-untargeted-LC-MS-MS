@@ -7555,87 +7555,6 @@ run_loess_validation_gui <- function(input_data, metadata_table, qc_names) {
 ########################################################################################################################
 ########################################################################################################################
 
-#' Simple Shiny App to ask about TIC normalization
-#' @return Logical (TRUE if TIC should be performed, FALSE otherwise)
-#' 
-
-ask_about_TIC_normalization <- function() {
-  
-  ui <- fluidPage(
-    titlePanel("Normalization Method Selection"),
-    
-    sidebarLayout(
-      sidebarPanel(
-        radioButtons(
-          "tic_choice",
-          "Do you want to perform TIC normalization ?",
-          choices = c(
-            "Yes, I will perform TIC normalization" = TRUE,
-            "No, I will use another method" = FALSE
-          ),
-          
-          selected = FALSE  
-        ),
-        
-        actionButton("submit", "Submit", class = "btn-success")
-      ),
-      
-      mainPanel(
-        h4(tags$b("About TIC Normalization :")),
-        tags$ul(
-          tags$li("Scales each sample by its total signal (TIC / total peak area)."),
-          tags$li("Useful to reduce global technical variation related to dilution, loading, or instrument response."),
-          tags$li("Warning : this is a sum-constraint normalization, so it introduces compositional effects and the results are relative rather than absolute.")
-        ),
-        hr(),
-        
-        h4(tags$b("Other Normalization Methods :")),
-        
-        tags$ul(
-          tags$li(
-            tags$b("PQN (Probabilistic Quotient Normalization) :"),
-            tags$ul(
-              tags$li("Estimates a sample-specific dilution factor by comparing each sample to a reference spectrum, often the median spectrum of QC (implemented) or samples themselves."),
-              tags$li("Robust to a few highly abundant metabolites and commonly used to correct dilution-related variability.")
-            )
-          ),
-          br(),
-          
-          tags$li(
-            tags$b("BRDG (Bridge Sample Normalization) :"),
-            tags$ul(
-              tags$li("Uses one or more bridge/reference samples measured across batches to put batches on a common scale."),
-              tags$li("Useful for harmonizing data when the study is split across analytical batches or acquisition waves."),
-              tags$li("Particularly helpful when a common reference sample is available throughout the run (QC in general)."),
-              tags$li("Warning : the bridge sample must be representative and consistently measured ; otherwise it can introduce bias.")
-            )
-          )
-        )
-      )
-    )
-  )
-  
-  server <- function(input, output, session) {
-    observeEvent(input$submit, {
-      stopApp(input$tic_choice)
-    })
-    
-  }
-  
-  runApp(shinyApp(ui, server), launch.browser = TRUE)
-}
-
-
-
-########################################################################################################################
-########################################################################################################################
-########################################################################################################################
-########################################################################################################################
-########################################################################################################################
-########################################################################################################################
-########################################################################################################################
-########################################################################################################################
-
 #----------------------------------       Normalization Methods Functions
 
 
@@ -7684,34 +7603,6 @@ normalize_pqn <- function(input_data, qc_names) {
 
 
 
-#' Total Ion Chromatogram (TIC) Normalization
-#'
-#' @param input_data Matrix or dataframe : Features * Samples
-#' @return Normalized data matrix
-#' 
-
-normalize_tic <- function(input_data) {
-  
-  # Calculate TIC for each sample
-  
-  sample_TIC <- colSums(input_data, na.rm = TRUE)
-  
-  # Apply normalization
-  
-  normalized_data <- sweep(input_data,
-                           2,
-                           sample_TIC,
-                           FUN = "/")
-  
-  return(normalized_data)
-}
-
-
-
-#------------------------------------------------------------------------------------------------------------
-
-
-
 #' Bridge Normalization (batch-specific)
 #'
 #' @param input_data Matrix or dataframe : Features * Samples
@@ -7723,11 +7614,35 @@ normalize_tic <- function(input_data) {
 
 normalize_bridge <- function(input_data, metadata_table, qc_names) {
   
+  # Check all represented batches before normalizing any batch
+  
+  batches <- unique(metadata_table$Batch[
+    metadata_table$SampleName %in% colnames(input_data)
+  ])
+  insufficient_qc <- character(0)
+  
+  for(b in batches) {
+    samples_in_batch <- intersect(
+      metadata_table$SampleName[metadata_table$Batch == b],
+      colnames(input_data)
+    )
+    n_qc_batch <- length(intersect(samples_in_batch, qc_names))
+    
+    if(n_qc_batch < 3) {
+      insufficient_qc <- c(insufficient_qc, paste0(b, " (", n_qc_batch, " QC)"))
+    }
+  }
+  
+  if(length(insufficient_qc) > 0) {
+    stop("BRDG requires at least 3 QC present in the input matrix per batch. Insufficient QC: ",
+         paste(insufficient_qc, collapse = ", "), ". Normalization stopped.")
+  }
+  
   normalized_data <- input_data
   
   # Loop through batches
   
-  for(b in unique(metadata_table$Batch)) {
+  for(b in batches) {
     
     samples_in_batch <- intersect(
       metadata_table$SampleName[metadata_table$Batch == b],
@@ -7736,7 +7651,7 @@ normalize_bridge <- function(input_data, metadata_table, qc_names) {
     
     qc_batch <- intersect(samples_in_batch, qc_names)
     
-    if(length(qc_batch) > 3) {
+    if(length(qc_batch) >= 3) {
       med_qc_batch <- apply(input_data[, qc_batch, drop = FALSE],
                             1,
                             median,
@@ -7771,7 +7686,7 @@ normalize_bridge <- function(input_data, metadata_table, qc_names) {
 #' 
 
 perform_normalization <- function(input_data, metadata_table, qc_names,
-                                  param_folder, data_folder, chart_folder, tic_decision) {
+                                  param_folder, data_folder, chart_folder) {
   
   # Method Selection
   
@@ -7786,13 +7701,10 @@ perform_normalization <- function(input_data, metadata_table, qc_names,
             "Normalization Method :",
             choices = c(
               "PQN (Probabilistic Quotient Normalization)",
-              "TIC (Total Ion Chromatogram)",
               "BRDG (Bridge Normalization)"
             ),
             selected = if(length(unique(metadata_table$Batch)) > 1) {
               "BRDG (Bridge Normalization)"
-            }else if(tic_decision == TRUE){
-              "TIC (Total Ion Chromatogram)"
             }else {
               "PQN (Probabilistic Quotient Normalization)"
             }
@@ -8153,9 +8065,9 @@ perform_normalization <- function(input_data, metadata_table, qc_names,
   normalized_data <- tryCatch({
     switch(method,
            "PQN (Probabilistic Quotient Normalization)" = normalize_pqn(input_data, qc_names),
-           "TIC (Total Ion Chromatogram)" = normalize_tic(input_data),
            "BRDG (Bridge Normalization)" = normalize_bridge(input_data, metadata_table, qc_names))
   }, error = function(e) {
+    if(method == "BRDG (Bridge Normalization)") stop(e)
     message("Error: ", e$message)
     return(NULL)
   })
@@ -8277,56 +8189,42 @@ perform_normalization <- function(input_data, metadata_table, qc_names,
   
   # Data, Parameters, Charts save
   
-  if (method == "TIC (Total Ion Chromatogram)") {
-    
-    message("TIC normalization. Skipping Shiny review.")
-    
-    write_json(
-      list(method = method),
-      path = file.path(param_folder, "2_Processing", "09_Normalization", "Normalization_parameters.json"),
-      pretty = TRUE, auto_unbox = TRUE
-    )
-    
-    return(list(normalized_data = normalized_data,
-                method = method))
-  } else {
-    
-    accept <- show_plots(plots)
-    
-    if(!accept) {
-      message("User rejected normalization")
-      return(NULL)
-    }
-    
-    write.csv(normalized_data,
-              file = file.path(data_folder, "2_Processing", "09_Normalization", "output_step2_normalized.csv"),
-              row.names = TRUE)
-    
-    ggsave(file.path(chart_folder, "2_Processing", "09_Normalization", "Boxplot.pdf"), plots$boxplot, 
-           height = 9, width = 14)
-    ggsave(file.path(chart_folder, "2_Processing", "09_Normalization", "rCV.pdf"), plots$rCV, 
-           height = 9, width = 14)
-    ggsave(file.path(chart_folder, "2_Processing", "09_Normalization", "rCV_hist.pdf"), plots$rCV_hist, 
-           height = 9, width = 14)
-    
-    if(!is.null(plots$qc_drift)) {
-      ggsave(file.path(chart_folder, "2_Processing", "09_Normalization", "QC_drift.pdf"), plots$qc_drift, 
-             height = 9, width = 14)
-    }
-    
-    write_json(
-      list(method = method),
-      path = file.path(param_folder, "2_Processing", "09_Normalization", "Normalization_parameters.json"),
-      pretty = TRUE, auto_unbox = TRUE
-    )
-    
-    return(list(
-      normalized_data = normalized_data,
-      plots = plots,
-      method = method
-    ))
-    
+  
+  accept <- show_plots(plots)
+  
+  if(!accept) {
+    message("User rejected normalization")
+    return(NULL)
   }
+  
+  write.csv(normalized_data,
+            file = file.path(data_folder, "2_Processing", "09_Normalization", "output_step2_normalized.csv"),
+            row.names = TRUE)
+  
+  ggsave(file.path(chart_folder, "2_Processing", "09_Normalization", "Boxplot.pdf"), plots$boxplot, 
+         height = 9, width = 14)
+  ggsave(file.path(chart_folder, "2_Processing", "09_Normalization", "rCV.pdf"), plots$rCV, 
+         height = 9, width = 14)
+  ggsave(file.path(chart_folder, "2_Processing", "09_Normalization", "rCV_hist.pdf"), plots$rCV_hist, 
+         height = 9, width = 14)
+  
+  if(!is.null(plots$qc_drift)) {
+    ggsave(file.path(chart_folder, "2_Processing", "09_Normalization", "QC_drift.pdf"), plots$qc_drift, 
+           height = 9, width = 14)
+  }
+  
+  write_json(
+    list(method = method),
+    path = file.path(param_folder, "2_Processing", "09_Normalization", "Normalization_parameters.json"),
+    pretty = TRUE, auto_unbox = TRUE
+  )
+  
+  return(list(
+    normalized_data = normalized_data,
+    plots = plots,
+    method = method
+  ))
+  
 }
 
 
@@ -8349,65 +8247,55 @@ perform_normalization <- function(input_data, metadata_table, qc_names,
 #' @param data_folder Folder path to save results
 #' @param chart_folder Folder path to save charts
 #' @param epsilon Small value to avoid log(0) (default: 1e-9)
-#' @param tic_decision Logical: TRUE for RCLR
 #' @return List with transformed data and statistics
 #' 
 
 perform_data_transformation <- function(input_data, bio_names, qc_names, param_folder, data_folder, chart_folder,
-                                        epsilon = 1e-9, tic_decision = FALSE) {
+                                        epsilon = 1e-9) {
   
   
-  # Apply transformation based on user choice
+  # Apply log10 transformation
   
-  if (tic_decision == TRUE) {
-    
-    transformed_data <- vegan::decostand(input_data, method = "rclr", MARGIN = 2, logbase = 10, na.rm = TRUE, impute = TRUE)
-    rownames(transformed_data) <- rownames(input_data)
-    colnames(transformed_data) <- colnames(input_data)
-    transformation_method <- "rCLR"
-    
-  } else {
-    
-    # Ask user about log10 transformation
-    
-    transformation_choice <- function() {
-      ui <- fluidPage(
-        titlePanel("Data Transformation"),
-        sidebarLayout(
-          sidebarPanel(
-            actionButton("continue", "Continue with log10 transformation", class = "btn-success")
-          ),
-          mainPanel(
-            h4("About log10 transformation :"),
-            tags$ul(
-              tags$li("Applies log10(x + ε) to all intensity values"),
-              tags$li("ε (epsilon) =", epsilon, "to avoid log(0)"),
-              tags$li("Helps stabilize variance and improve normality"),
-              tags$li("Transforms multiplicative relationships into additive ones. 
+  
+  # Ask user about log10 transformation
+  
+  transformation_choice <- function() {
+    ui <- fluidPage(
+      titlePanel("Data Transformation"),
+      sidebarLayout(
+        sidebarPanel(
+          actionButton("continue", "Continue with log10 transformation", class = "btn-success")
+        ),
+        mainPanel(
+          h4("About log10 transformation :"),
+          tags$ul(
+            tags$li("Applies log10(x + ε) to all intensity values"),
+            tags$li("ε (epsilon) =", epsilon, "to avoid log(0)"),
+            tags$li("Helps stabilize variance and improve normality"),
+            tags$li("Transforms multiplicative relationships into additive ones. 
                       Improves the performance of linear multivariate methods such as PCA and PLS by making covariance structures more reliable.")
-            )
           )
         )
       )
-      
-      server <- function(input, output, session) {
-        observeEvent(input$continue, { stopApp("log10") })
-      }
-      
-      runApp(shinyApp(ui, server), launch.browser = TRUE)
+    )
+    
+    server <- function(input, output, session) {
+      observeEvent(input$continue, { stopApp("log10") })
     }
     
-    choice <- transformation_choice()
-    
-    if (is.null(choice)) {
-      message("Operation canceled by user.")
-      return(NULL)
-    }
-    
-    if (choice == "log10") {
-      transformed_data <- log10(input_data + epsilon)
-      transformation_method <- "log10"
-    }
+    runApp(shinyApp(ui, server), launch.browser = TRUE)
+  }
+  
+  choice <- transformation_choice()
+  
+  if (is.null(choice)) {
+    message("Operation canceled by user.")
+    return(NULL)
+  }
+  
+  if (choice == "log10") {
+    transformed_data <- log10(input_data + epsilon)
+    transformation_method <- "log10"
   }
   
   # Calculate normality statistics for BIO samples
@@ -9661,7 +9549,7 @@ annotate_GNPS_EB <- function(param_folder, data_folder) {
             ),
             numericInput(
               inputId = "max_ppm_error",
-              label   = "Maximum |delta_mz| allowed (ppm)",
+              label   = "Maximum absolute precursor mass error (ppm)",
               value   = 10,
               min     = 0,
               step    = 1
@@ -9686,8 +9574,9 @@ annotate_GNPS_EB <- function(param_folder, data_folder) {
             tags$b("Minimum cosine :"),
             p("Hits with a cosine below this threshold are discarded before selection."),
             br(),
-            tags$b("Maximum |delta_mz| :"),
-            p("Hits with an absolute mass error (ppm) above this threshold are discarded before selection.")
+            tags$b("Maximum absolute precursor mass error (ppm) :"),
+            p("Hits with an absolute precursor mass error (ppm) above this threshold are discarded before selection. ",
+              "The error is calculated relative to the library precursor m/z. The input delta_mz column is in Da.")
           )
         )
       )
@@ -9757,10 +9646,12 @@ annotate_GNPS_EB <- function(param_folder, data_folder) {
     gnps_raw <- dplyr::rename(gnps_raw, NAME = COMPOUND_NAME)
   }
   
-  required_cols <- c("query_scan", "cosine", "delta_mz", "NAME")
+  required_cols <- c("query_scan", "cosine", "delta_mz", "NAME",
+                     "query_precursor_mz", "library_precursor_mz")
   missing_cols  <- setdiff(required_cols, colnames(gnps_raw))
   
   if (length(missing_cols) > 0) {
+    missing_cols[missing_cols == "NAME"] <- "COMPOUND_NAME (or NAME)"
     stop("The uploaded file is missing expected GNPS columns : ", paste(missing_cols, collapse = ", "))
   }
   
@@ -9768,6 +9659,24 @@ annotate_GNPS_EB <- function(param_folder, data_folder) {
   gnps_raw$feature_id <- as.integer(gnps_raw$feature_id)
   gnps_raw$cosine     <- as.numeric(gnps_raw$cosine)
   gnps_raw$delta_mz   <- as.numeric(gnps_raw$delta_mz)
+  gnps_raw$query_precursor_mz   <- suppressWarnings(as.numeric(gnps_raw$query_precursor_mz))
+  gnps_raw$library_precursor_mz <- suppressWarnings(as.numeric(gnps_raw$library_precursor_mz))
+  
+  # Check precursor masses before calculating the mass error in ppm
+  
+  invalid_mz <- !is.finite(gnps_raw$query_precursor_mz) | gnps_raw$query_precursor_mz <= 0 |
+    !is.finite(gnps_raw$library_precursor_mz) | gnps_raw$library_precursor_mz <= 0
+  
+  if (any(invalid_mz)) {
+    stop("Invalid precursor m/z in ", sum(invalid_mz), " row(s). ",
+         "Columns query_precursor_mz and library_precursor_mz must contain finite, positive numeric values.")
+  }
+  
+  # delta_mz is in Da. Recompute ppm from the precursor masses without using the rounded delta_mz.
+  
+  gnps_raw$mass_error_ppm <- 1e6 *
+    (gnps_raw$query_precursor_mz - gnps_raw$library_precursor_mz) /
+    gnps_raw$library_precursor_mz
   
   message("GNPS Everything Bagel result rows loaded : ", nrow(gnps_raw),
           "| Unique scans : ", length(unique(gnps_raw$feature_id)), "\n")
@@ -9779,7 +9688,7 @@ annotate_GNPS_EB <- function(param_folder, data_folder) {
     dplyr::filter(
       !is.na(Compound_Name), trimws(Compound_Name) != "",
       cosine >= annot_list$min_cosine,
-      abs(delta_mz) <= annot_list$max_ppm_error
+      abs(mass_error_ppm) <= annot_list$max_ppm_error
     )
   
   if (nrow(gnps_filtered) == 0) {
@@ -9819,7 +9728,8 @@ annotate_GNPS_EB <- function(param_folder, data_folder) {
       do_annotation = TRUE,
       gnps_file     = annot_list$file_name,
       min_cosine    = annot_list$min_cosine,
-      max_ppm_error = annot_list$max_ppm_error
+      max_ppm_error = annot_list$max_ppm_error,
+      mass_error_formula = "1e6 * (query_precursor_mz - library_precursor_mz) / library_precursor_mz"
     ),
     pretty = TRUE, auto_unbox = TRUE,
     path = file.path(param_dir, "GNPS_EB_annotation_Param.json")
@@ -9903,7 +9813,7 @@ perform_annotation_Compound_Discoverer <- function(feature_metadata, data_folder
       ext <- tools::file_ext(input$file$name)
       
       if (ext == "csv") {
-        df <- read.csv(input$file$datapath, stringsAsFactors = FALSE)
+        df <- read.csv(input$file$datapath, check.names = FALSE, stringsAsFactors = FALSE)
       } else if (ext %in% c("xlsx", "xls")) {
         df <- read_excel(input$file$datapath)
       } else {

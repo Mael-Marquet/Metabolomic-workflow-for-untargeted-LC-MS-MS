@@ -693,34 +693,6 @@ if (!is.null(loess_results)) {
 }
 
 ##########################################################################################################
-###################################  Pre-Normalization strict CV filtering (TIC only)  ###################
-
-tic_decision <- ask_about_TIC_normalization()
-
-if (is.null(tic_decision)) {
-  message("Normalization selection canceled by user.")
-}
-
-if(tic_decision == TRUE){
-  
-  # Function
-  
-  CV_results_pre_TIC <- apply_validation_CV_filter(
-    input_data = step_df,
-    qc_names = qc_without_outliers,
-    metadata_table = metadata_table,
-    param_folder = param_folder,
-    data_folder = data_folder
-  )
-  
-  # Results
-  
-  if (!is.null(CV_results_pre_TIC)) {
-    step_df <- CV_results_pre_TIC$filtered_data
-  }
-}
-
-##########################################################################################################
 #########################################  Data Normalization  ###########################################
 
 # Function
@@ -731,8 +703,7 @@ normalization_results <- perform_normalization(
   qc_names = qc_without_outliers,
   param_folder = param_folder,
   data_folder = data_folder,
-  chart_folder = chart_folder,
-  tic_decision = tic_decision
+  chart_folder = chart_folder
 )
 
 # Results
@@ -742,27 +713,23 @@ if(!is.null(normalization_results)) {
 }
 
 ##########################################################################################################
-######################      Post-Normalization strict CV filtering (QC only / TIC excluded)     ##########
+############################  Post-Normalization strict CV filtering (QC only)  ##########################
 
 
-if(tic_decision == FALSE){
-  
-  # Function
-  
-  CV_results_post_norma <- apply_validation_CV_filter(
-    input_data = step_df,
-    qc_names = qc_without_outliers,
-    metadata_table = metadata_table,
-    param_folder = param_folder,
-    data_folder = data_folder
-  )
-  
-  # Results
-  
-  if (!is.null(CV_results_post_norma)) {
-    step_df <- CV_results_post_norma$filtered_data
-  }
-  
+# Function
+
+CV_results_post_norma <- apply_validation_CV_filter(
+  input_data = step_df,
+  qc_names = qc_without_outliers,
+  metadata_table = metadata_table,
+  param_folder = param_folder,
+  data_folder = data_folder
+)
+
+# Results
+
+if (!is.null(CV_results_post_norma)) {
+  step_df <- CV_results_post_norma$filtered_data
 }
 
 
@@ -819,8 +786,7 @@ transformation_results <- perform_data_transformation(
   param_folder = param_folder,
   data_folder = data_folder,
   chart_folder = chart_folder,
-  epsilon = 1e-9,
-  tic_decision = tic_decision
+  epsilon = 1e-9
 )
 
 # Results
