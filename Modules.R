@@ -8518,12 +8518,13 @@ perform_data_transformation <- function(input_data, bio_names, qc_names, param_f
 #' @param kurtosis_values Vector of kurtosis values
 #' @param skew_kurto_plot ggplot object showing skewness/kurtosis distributions
 #' @param data_folder Folder path to save results
+#' @param param_folder Folder path to save scaling parameters
 #' @return List containing scaled data matrix and scaling parameters
 #' 
 
 perform_data_scaling <- function(input_data, qc_names, non_normal_prop_BIO,
                                  non_normal_prop_QC, skewness_values,
-                                 kurtosis_values, skew_kurto_plot, data_folder) {
+                                 kurtosis_values, skew_kurto_plot, data_folder, param_folder) {
   
   # Integrated Shiny UI for scaling method selection
   
@@ -9228,7 +9229,11 @@ annotate_inhouse <- function(ms2_consensus, param_folder, data_folder) {
   
   # Spectral matching (parallelized across query features)
   
-  chunks <- split(seq_len(n_query), cut(seq_len(n_query), breaks = nbrOfWorkers(), labels = FALSE))
+  if (nbrOfWorkers() == 1L) {
+    chunks <- list(seq_len(n_query))
+  } else {
+    chunks <- split(seq_len(n_query), cut(seq_len(n_query), breaks = nbrOfWorkers(), labels = FALSE))
+  }
   
   cat("Total features :", n_query, "| Chunks :", length(chunks),
       "| ~", ceiling(n_query / nbrOfWorkers()), "features/worker\n")
@@ -10257,7 +10262,9 @@ run_all_hypotheses <- function(metadata_table, pre_scaled_matrix, Final_output, 
     
     # Global Statistical Summary
     
-    run_global_stats_dashboard(Hypothesis_Result, Annotation_summary_table, hypo_data$filename_hypo)
+    run_global_stats_dashboard(Hypothesis_Result, Annotation_summary_table,
+                               filename_hypo = hypo_data$filename_hypo,
+                               data_folder = data_folder)
     
     # Data save
     
@@ -10342,15 +10349,6 @@ prepare_hypothesis_data <- function(metadata_table, Final_output, Final_output_a
   # Filter out NA values, and empty cases for this hypothesis
   
   metadata_hypo <- metadata_table[!is.na(metadata_table[[hypo_name]]) & base::trimws(metadata_table[[hypo_name]]) != "", ]
-  
-  # Check minimum group size
-  
-  group_counts <- table(metadata_hypo[[hypo_name]])
-  
-  if(any(group_counts < 3)) {
-    warning(paste("Skipping hypothesis : ", hypo_name, "- some groups have less than 5 samples"))
-    return(NULL)
-  }
   
   # Create a readable folder name and group names
   
@@ -10650,12 +10648,26 @@ prepare_hypothesis_data <- function(metadata_table, Final_output, Final_output_a
   
   # Filter matrix to keep only relevant samples
   
-  samples_to_keep <- setdiff(metadata_hypo$SampleName, outliers)
-  metadata_hypo <- metadata_hypo[metadata_hypo$SampleName %in% samples_to_keep, , drop = FALSE]
+  hypothesis_groups <- unique(metadata_hypo[[hypo_name]])
+  samples_to_keep <- intersect(colnames(stats_matrix),
+                               setdiff(metadata_hypo$SampleName, outliers$Sample))
+  metadata_hypo <- metadata_hypo[match(samples_to_keep, metadata_hypo$SampleName), , drop = FALSE]
+  
+  # Check actual sample counts after exclusions and matrix selection
+  
+  group_counts <- table(factor(metadata_hypo[[hypo_name]], levels = hypothesis_groups))
+  
+  if(nrow(metadata_hypo) < 6 || any(group_counts < 3)) {
+    warning(paste0("Skipping hypothesis : ", hypo_name,
+                   " - at least 6 samples in total and 3 per group are required after exclusions. Retained : ",
+                   nrow(metadata_hypo), " total; ",
+                   paste(names(group_counts), group_counts, sep = " = ", collapse = ", ")))
+    return(NULL)
+  }
   
   # Unsupervised Matrix
   
-  stats_matrix <- stats_matrix[, colnames(stats_matrix) %in% samples_to_keep, drop = FALSE]
+  stats_matrix <- stats_matrix[, samples_to_keep, drop = FALSE]
   stats_matrix <- t(stats_matrix) # Samples * Features
   stats_matrix_unsup <- stats_matrix
   
@@ -15033,8 +15045,10 @@ run_volcano_analysis <- function(pre_scaled_matrix,
 
 #' @param results Results list from run_hypothesis_analyses()
 #' @param Annotation_summary_table Annotation table (optional)
+#' @param filename_hypo Hypothesis name used for report exports
+#' @param data_folder Folder path to save cross-method reports
 
-run_global_stats_dashboard <- function(results, Annotation_summary_table = NULL, filename_hypo) {
+run_global_stats_dashboard <- function(results, Annotation_summary_table = NULL, filename_hypo, data_folder) {
   
   if (is.null(results) || !all(c("PLSDA", "RF") %in% names(results))) {
     stop("The 'results' object must contain at least 'PLSDA' and 'RF'.")
@@ -15652,7 +15666,10 @@ select_and_run_dashboard <- function(folder_path) {
       
       selected_file <- rds_files[file_names == input$file_choice]
       
-      stopApp(readRDS(selected_file))
+      stopApp(list(
+        results = readRDS(selected_file),
+        filename_hypo = tools::file_path_sans_ext(basename(selected_file))
+      ))
       
     })
   }

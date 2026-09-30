@@ -768,7 +768,11 @@ outlier_results2 <- filter_sample_outliers(
 
 if (!is.null(outlier_results2)) {
   step_df <- outlier_results2$filtered_data
-  outliers <- outlier_results2$outliers
+  outliers <- data.frame(
+    Sample = union(as.character(outliers$Sample),
+                   as.character(outlier_results2$outliers$Sample)),
+    stringsAsFactors = FALSE
+  )
   bio_without_outliers <- outlier_results2$bio_without_outliers
   qc_without_outliers <- outlier_results2$qc_without_outliers
 }
@@ -809,7 +813,8 @@ scaling_results <- perform_data_scaling(
   skewness_values = transformation_results$skewness_values,
   kurtosis_values = transformation_results$kurtosis_values,
   skew_kurto_plot = transformation_results$skew_kurto_plot,
-  data_folder = data_folder
+  data_folder = data_folder,
+  param_folder = param_folder
 )
 
 # Results
@@ -1086,6 +1091,7 @@ if (has_annotation) {
 # Function
 
 run_all_hypotheses(metadata_table = metadata_table,
+                   feature_metadata = feature_metadata,
                    pre_scaled_matrix = pre_scaled_matrix,
                    Final_output = Final_output, 
                    Final_output_annotated = if (exists("Final_output_annotated")) Final_output_annotated else NULL, 
@@ -1115,7 +1121,11 @@ run_all_hypotheses(metadata_table = metadata_table,
 
 hypothesis_RDS_path <- file.path(data_folder, "Hypothesis_RDS")
 
-hypothesis_RDS <- select_and_run_dashboard(folder_path = hypothesis_RDS_path)
+dashboard_selection <- select_and_run_dashboard(folder_path = hypothesis_RDS_path)
+hypothesis_RDS <- dashboard_selection$results
 
-run_global_stats_dashboard(hypothesis_RDS, if (exists("feature_table")) feature_table else NULL)
+run_global_stats_dashboard(hypothesis_RDS,
+                           if (exists("feature_table")) feature_table else NULL,
+                           filename_hypo = dashboard_selection$filename_hypo,
+                           data_folder = data_folder)
 
