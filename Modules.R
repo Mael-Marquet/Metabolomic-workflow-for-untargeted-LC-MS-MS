@@ -2251,19 +2251,31 @@ perform_gap_filling <- function(xdata_grouped, data_folder, param_folder) {
     )
   }
   
-  filled_summary <- do.call(rbind, summary_rows)
-  filled_summary <- filled_summary[order(filled_summary$ratio_detected_to_filled), ]
-  
-  ratio_median <- round(median(filled_summary$ratio_detected_to_filled, na.rm = TRUE), 2)
-  
-  message("--- Filled peaks vs detected peaks intensity ---")
-  message("Median ratio (detected/filled) across features : ", round(ratio_median, 1))
-  if (ratio_median < 1) {
-    message("\U00002757 WARNING : Gapfilled peaks are LARGER than detected peaks !")
-    message("→ Gap filling may be creating artefacts")
-    message("→ Consider reducing expandMz/expandRt parameters")
+  if (length(summary_rows) == 0L) {
+    filled_summary <- data.frame(
+      feature = character(),
+      n_detected = integer(),
+      n_filled = integer(),
+      median_detected_into = numeric(),
+      median_filled_into = numeric(),
+      ratio_detected_to_filled = numeric()
+    )
+    message("No filled peaks : intensity comparison is not applicable.")
+  } else {
+    filled_summary <- do.call(rbind, summary_rows)
+    filled_summary <- filled_summary[order(filled_summary$ratio_detected_to_filled), ]
+    
+    ratio_median <- round(median(filled_summary$ratio_detected_to_filled, na.rm = TRUE), 2)
+    
+    message("--- Filled peaks vs detected peaks intensity ---")
+    message("Median ratio (detected/filled) across features : ", round(ratio_median, 1))
+    if (ratio_median < 1) {
+      message("\U00002757 WARNING : Gapfilled peaks are LARGER than detected peaks !")
+      message("→ Gap filling may be creating artefacts")
+      message("→ Consider reducing expandMz/expandRt parameters")
+    }
+    print(utils::head(filled_summary, 10))
   }
-  print(utils::head(filled_summary, 10))
   
   
   # Save data
@@ -3467,7 +3479,7 @@ export_MS2_spectra <- function(xdata_filled, param_folder, data_folder) {
   
   # MS2 spectra extraction (parallelized across features)
   
-  all_feat <- seq_len(nrow(featureDefinitions(xdata_grouped)))
+  all_feat <- seq_len(nrow(featureDefinitions(xdata_filled)))
   chunks   <- split(all_feat, cut(seq_along(all_feat), breaks = nbrOfWorkers(), labels = FALSE))
   
   cat("Total features :", length(all_feat), "| Chunks :", length(chunks),
@@ -3502,16 +3514,16 @@ export_MS2_spectra <- function(xdata_filled, param_folder, data_folder) {
   
   # Diagnostics
   
-  n_ms1_total <- sum(xdata_grouped@featureData@data$msLevel == 1L)
-  n_ms2_total <- sum(xdata_grouped@featureData@data$msLevel == 2L)
+  n_ms1_total <- sum(xdata_filled@featureData@data$msLevel == 1L)
+  n_ms2_total <- sum(xdata_filled@featureData@data$msLevel == 2L)
   message("MS1 acquired total : ", n_ms1_total, "\n")
   message("MS2 acquired total : ", n_ms2_total, "\n")
   
   feat_ids_with_ms2 <- unique(feature_ms2$feature_id)
   message("Features with MS2 : ", length(feat_ids_with_ms2), "/",
-          nrow(featureDefinitions(xdata_grouped)),
+          nrow(featureDefinitions(xdata_filled)),
           sprintf("(%.1f%%)", 100 * length(feat_ids_with_ms2) /
-                    nrow(featureDefinitions(xdata_grouped))), "\n")
+                    nrow(featureDefinitions(xdata_filled))), "\n")
   
   
   # Construction of a consensus spectrum per feature (merging the peaks of all candidates for the feature, across all samples)
@@ -6267,7 +6279,8 @@ review_imputation_results <- function(imputed_data, original_data, validation_re
 #'         - filtered_data: Dataframe with features passing CV threshold
 #'         - cv_values: Dataframe with CV values for all features
 #'         - cv_threshold: Selected CV threshold
-#'         - non_normal_prop: Proportion of non-normal variables
+#'         - non_normal_prop: Proportion rejecting normality among tested features (NULL if none)
+#'         - normality_info: Counts of tested/unavailable Shapiro tests and reasons
 #'         - use_robust_CV: Logical indicating if robust CV was used
 #'         
 #' @details The robust CV calculation uses MAD with constant = 1 (raw median absolute deviation)
@@ -6276,7 +6289,7 @@ review_imputation_results <- function(imputed_data, original_data, validation_re
 #'          For the permissive filter, the default CV threshold is set to 0.8 to filter noise and non reliable compounds,
 #'          while the strict filter uses 0.3 to focus only on highly reproducible compounds.
 #'          The choice between robust (MAD/median) and standard (SD/mean) CV is automatically suggested
-#'          based on the proportion of non-normal variables (threshold: 10%).   
+#'          when >= 15% of testable features reject normality, or any QC test is unavailable.
 
 
 apply_exploratory_CV_filter <- function(input_data, qc_names, metadata_table, param_folder, data_folder) {
@@ -6285,27 +6298,47 @@ apply_exploratory_CV_filter <- function(input_data, qc_names, metadata_table, pa
   
   normality_test <- function() {
     
-    shapiro_results <- sapply(1:nrow(input_data %>% select(all_of(qc_names))),
+    if (!nrow(input_data)) stop("No features available for QC CV filtering.")
+    shapiro_results <- lapply(seq_len(nrow(input_data %>% select(all_of(qc_names)))),
                               function(i) {
                                 x <- na.omit(as.numeric(input_data[i, qc_names]))
-                                if(length(x) >= 5) shapiro.test(x)$p.value else 0
+                                if (length(x) < 5) return("Fewer than 5 observed values")
+                                if (length(x) > 5000) return("More than 5000 observed values")
+                                if (any(!is.finite(x))) return("Non-finite values")
+                                if (length(unique(x)) < 2) return("Identical values")
+                                p_value <- try(shapiro.test(x)$p.value, silent = TRUE)
+                                if (inherits(p_value, "try-error") || !is.finite(p_value)) {
+                                  return("Shapiro test failed")
+                                }
+                                p_value
                               })
     
-    non_normal_prop <- mean(shapiro_results <= 0.05, na.rm = TRUE)
+    testable <- vapply(shapiro_results, is.numeric, logical(1))
+    valid_pvalues <- unlist(shapiro_results[testable], use.names = FALSE)
+    non_normal_prop <- if (length(valid_pvalues)) mean(valid_pvalues <= 0.05) else NULL
+    normality_info <- list(
+      non_normal_prop = non_normal_prop,
+      n_tested = sum(testable),
+      n_not_testable = sum(!testable),
+      not_testable_reasons = as.list(table(unlist(shapiro_results[!testable])))
+    )
     
-    write_json(non_normal_prop, pretty = TRUE, auto_unbox = TRUE,
+    write_json(if (is.null(non_normal_prop)) "Not testable" else non_normal_prop,
+               pretty = TRUE, auto_unbox = TRUE,
                path = file.path(param_folder, "2_Processing", "07_Permissive_CV_pre_LOESS", "Propor_non_norma_var_permissive_CV.json"))
     
-    return(non_normal_prop)
+    return(normality_info)
   }
   
   # Function to select CV threshold
   
-  get_CV_threshold_gui <- function(non_normal_prop) {
+  get_CV_threshold_gui <- function(normality_info) {
     
-    # Automatic selection of the recommended default method
+    # Any unavailable QC test selects robust CV by default; manual choice is retained.
+    non_normal_prop <- normality_info$non_normal_prop
+    recommend_robust <- normality_info$n_not_testable > 0 || isTRUE(non_normal_prop >= 0.15)
     
-    if(non_normal_prop >= 0.15){
+    if (recommend_robust) {
       selected_method <- "Robust CV (Median & MAD)"
     }else{
       selected_method <- "Standard CV (Mean-based)"
@@ -6357,17 +6390,18 @@ apply_exploratory_CV_filter <- function(input_data, qc_names, metadata_table, pa
       
       output$normality_msg <- renderText({
         
-        if (non_normal_prop >= 0.15) {
-          paste0(
-            round((1-non_normal_prop) * 100, 1), " % of variables are normally distributed.\n",
-            "➡ Recommendation : Robust CV"
-          )
+        test_summary <- if (normality_info$n_tested > 0) {
+          paste0(round(non_normal_prop * 100, 1),
+                 " % of testable features reject normality (Shapiro p <= 0.05).\n")
         } else {
-          paste0(
-            round((1-non_normal_prop) * 100, 1), " % of variables are normally distributed.\n",
-            "➡ Recommendation : Standard CV"
-          )
+          "No feature could be tested for normality.\n"
         }
+        paste0(
+          test_summary,
+          normality_info$n_not_testable, " feature(s) not testable.\n",
+          if (normality_info$n_not_testable > 0) "Unavailable tests trigger the robust CV default.\n" else "",
+          "➡ Recommendation : ", if (recommend_robust) "Robust CV" else "Standard CV"
+        )
       })
       
       output$qc_warning <- renderUI({
@@ -6376,7 +6410,7 @@ apply_exploratory_CV_filter <- function(input_data, qc_names, metadata_table, pa
           tags$p(
             style = "color: grey; font-size: 0.9em;",
             icon("info-circle", style = "color: grey; margin-right: 5px;"),
-            sprintf("Please note : %d QC pool available < 5 (all features treated as non-normal by default).", n_qc)
+            sprintf("Please note : %d QC pools available. This workflow requires at least 5 observed values for Shapiro; robust CV is selected by default.", n_qc)
           )
         }
       })
@@ -6443,11 +6477,12 @@ apply_exploratory_CV_filter <- function(input_data, qc_names, metadata_table, pa
   
   # Main function logic
   
-  non_normal_prop <- normality_test()
+  normality_info <- normality_test()
+  non_normal_prop <- normality_info$non_normal_prop
   
   # Select CV threshold
   
-  CV_threshold_list <- get_CV_threshold_gui(non_normal_prop)
+  CV_threshold_list <- get_CV_threshold_gui(normality_info)
   
   if (is.null(CV_threshold_list)) {
     message("CV threshold selection canceled by user.")
@@ -6465,8 +6500,9 @@ apply_exploratory_CV_filter <- function(input_data, qc_names, metadata_table, pa
   
   # Save parameters
   
-  write_json(list(CV_threshold = CV_threshold, use_robust_CV = use_robust_CV),
-             pretty = TRUE, auto_unbox = TRUE,
+  write_json(list(CV_threshold = CV_threshold, use_robust_CV = use_robust_CV,
+                  normality = normality_info),
+             pretty = TRUE, auto_unbox = TRUE, null = "null",
              path = file.path(param_folder, "2_Processing", "07_Permissive_CV_pre_LOESS", "Permissive_CV_params.json"))
   
   # Save CV values
@@ -6495,6 +6531,7 @@ apply_exploratory_CV_filter <- function(input_data, qc_names, metadata_table, pa
     cv_values = cv_df,
     cv_threshold = CV_threshold,
     non_normal_prop = non_normal_prop,
+    normality_info = normality_info,
     use_robust_CV = use_robust_CV
   )
 }
@@ -6512,27 +6549,47 @@ apply_validation_CV_filter <- function(input_data, qc_names, metadata_table, par
   
   normality_test <- function() {
     
-    shapiro_results <- sapply(1:nrow(input_data %>% select(all_of(qc_names))),
+    if (!nrow(input_data)) stop("No features available for QC CV filtering.")
+    shapiro_results <- lapply(seq_len(nrow(input_data %>% select(all_of(qc_names)))),
                               function(i) {
                                 x <- na.omit(as.numeric(input_data[i, qc_names]))
-                                if(length(x) >= 5) shapiro.test(x)$p.value else 0
+                                if (length(x) < 5) return("Fewer than 5 observed values")
+                                if (length(x) > 5000) return("More than 5000 observed values")
+                                if (any(!is.finite(x))) return("Non-finite values")
+                                if (length(unique(x)) < 2) return("Identical values")
+                                p_value <- try(shapiro.test(x)$p.value, silent = TRUE)
+                                if (inherits(p_value, "try-error") || !is.finite(p_value)) {
+                                  return("Shapiro test failed")
+                                }
+                                p_value
                               })
     
-    non_normal_prop <- mean(shapiro_results <= 0.05, na.rm = TRUE)
+    testable <- vapply(shapiro_results, is.numeric, logical(1))
+    valid_pvalues <- unlist(shapiro_results[testable], use.names = FALSE)
+    non_normal_prop <- if (length(valid_pvalues)) mean(valid_pvalues <= 0.05) else NULL
+    normality_info <- list(
+      non_normal_prop = non_normal_prop,
+      n_tested = sum(testable),
+      n_not_testable = sum(!testable),
+      not_testable_reasons = as.list(table(unlist(shapiro_results[!testable])))
+    )
     
-    write_json(non_normal_prop, pretty = TRUE, auto_unbox = TRUE,
+    write_json(if (is.null(non_normal_prop)) "Not testable" else non_normal_prop,
+               pretty = TRUE, auto_unbox = TRUE,
                path = file.path(param_folder, "2_Processing", "10_Strict_CV", "Propor_non_norma_var_strict_CV.json"))
     
-    return(non_normal_prop)
+    return(normality_info)
   }
   
   # Function to select CV threshold
   
-  get_CV_threshold_gui <- function(non_normal_prop) {
+  get_CV_threshold_gui <- function(normality_info) {
     
-    # Automatic selection of the recommended default method
+    # Any unavailable QC test selects robust CV by default; manual choice is retained.
+    non_normal_prop <- normality_info$non_normal_prop
+    recommend_robust <- normality_info$n_not_testable > 0 || isTRUE(non_normal_prop >= 0.15)
     
-    if(non_normal_prop >= 0.15){
+    if (recommend_robust) {
       selected_method <- "Robust CV (Median & MAD)"
     }else{
       selected_method <- "Standard CV (Mean-based)"
@@ -6582,17 +6639,18 @@ apply_validation_CV_filter <- function(input_data, qc_names, metadata_table, par
       
       output$normality_msg <- renderText({
         
-        if (non_normal_prop >= 0.15) {
-          paste0(
-            round((1-non_normal_prop) * 100, 1), " % of variables are normally distributed.\n",
-            "➡ Recommendation : Robust CV"
-          )
+        test_summary <- if (normality_info$n_tested > 0) {
+          paste0(round(non_normal_prop * 100, 1),
+                 " % of testable features reject normality (Shapiro p <= 0.05).\n")
         } else {
-          paste0(
-            round((1-non_normal_prop) * 100, 1), " % of variables are normally distributed.\n",
-            "➡ Recommendation : Standard CV"
-          )
+          "No feature could be tested for normality.\n"
         }
+        paste0(
+          test_summary,
+          normality_info$n_not_testable, " feature(s) not testable.\n",
+          if (normality_info$n_not_testable > 0) "Unavailable tests trigger the robust CV default.\n" else "",
+          "➡ Recommendation : ", if (recommend_robust) "Robust CV" else "Standard CV"
+        )
       })
       
       output$qc_warning <- renderUI({
@@ -6601,7 +6659,7 @@ apply_validation_CV_filter <- function(input_data, qc_names, metadata_table, par
           tags$p(
             style = "color: grey; font-size: 0.9em;",
             icon("info-circle", style = "color: grey; margin-right: 5px;"),
-            sprintf("Please note : %d QC pool available < 5 (all features treated as non-normal by default).", n_qc)
+            sprintf("Please note : %d QC pools available. This workflow requires at least 5 observed values for Shapiro; robust CV is selected by default.", n_qc)
           )
         }
       })
@@ -6668,11 +6726,12 @@ apply_validation_CV_filter <- function(input_data, qc_names, metadata_table, par
   
   # Main function logic
   
-  non_normal_prop <- normality_test()
+  normality_info <- normality_test()
+  non_normal_prop <- normality_info$non_normal_prop
   
   # Select CV threshold
   
-  CV_threshold_list <- get_CV_threshold_gui(non_normal_prop)
+  CV_threshold_list <- get_CV_threshold_gui(normality_info)
   
   if (is.null(CV_threshold_list)) {
     message("CV threshold selection canceled by user.")
@@ -6690,8 +6749,9 @@ apply_validation_CV_filter <- function(input_data, qc_names, metadata_table, par
   
   # Save parameters
   
-  write_json(list(CV_threshold = CV_threshold, use_robust_CV = use_robust_CV),
-             pretty = TRUE, auto_unbox = TRUE,
+  write_json(list(CV_threshold = CV_threshold, use_robust_CV = use_robust_CV,
+                  normality = normality_info),
+             pretty = TRUE, auto_unbox = TRUE, null = "null",
              path = file.path(param_folder, "2_Processing", "10_Strict_CV", "Strict_CV_params.json"))
   
   # Save CV values
@@ -6720,6 +6780,7 @@ apply_validation_CV_filter <- function(input_data, qc_names, metadata_table, par
     cv_values = cv_df,
     cv_threshold = CV_threshold,
     non_normal_prop = non_normal_prop,
+    normality_info = normality_info,
     use_robust_CV = use_robust_CV
   )
 }
@@ -8300,30 +8361,50 @@ perform_data_transformation <- function(input_data, bio_names, qc_names, param_f
   
   # Calculate normality statistics for BIO samples
   
-  shapiro_results_BIO <- sapply(1:nrow(transformed_data %>% select(all_of(bio_names))),
+  shapiro_results_BIO <- lapply(seq_len(nrow(transformed_data %>% select(all_of(bio_names)))),
                                 function(i) {
                                   x <- na.omit(as.numeric(transformed_data[i, bio_names]))
-                                  if(length(x) >= 5) shapiro.test(x)$p.value else NA
+                                  if (length(x) < 5) return("Fewer than 5 observed values")
+                                  if (length(x) > 5000) return("More than 5000 observed values")
+                                  if (any(!is.finite(x))) return("Non-finite values")
+                                  if (length(unique(x)) < 2) return("Identical values")
+                                  p_value <- try(shapiro.test(x)$p.value, silent = TRUE)
+                                  if (inherits(p_value, "try-error") || !is.finite(p_value)) {
+                                    return("Shapiro test failed")
+                                  }
+                                  p_value
                                 })
   
-  shapiro_pvalues_adjusted_BIO <- p.adjust(shapiro_results_BIO, method = "fdr")
-  non_normal_prop_BIO <- mean(shapiro_pvalues_adjusted_BIO <= 0.05, na.rm = TRUE)
+  testable_BIO <- vapply(shapiro_results_BIO, is.numeric, logical(1))
+  shapiro_pvalues_adjusted_BIO <- p.adjust(unlist(shapiro_results_BIO[testable_BIO], use.names = FALSE), method = "fdr")
+  non_normal_prop_BIO <- if (length(shapiro_pvalues_adjusted_BIO)) mean(shapiro_pvalues_adjusted_BIO <= 0.05) else NULL
   
-  write_json(non_normal_prop_BIO, pretty = TRUE, auto_unbox = TRUE,
+  write_json(if (is.null(non_normal_prop_BIO)) "Not testable" else non_normal_prop_BIO,
+             pretty = TRUE, auto_unbox = TRUE,
              path = file.path(param_folder, "2_Processing", "11_Data_Transformation", "Propor_non_norma_after_data-transfo_BIO.json"))
   
   # Calculate normality statistics for QC samples 
   
-  shapiro_results_QC <- sapply(1:nrow(transformed_data %>% select(all_of(qc_names))),
+  shapiro_results_QC <- lapply(seq_len(nrow(transformed_data %>% select(all_of(qc_names)))),
                                function(i) {
                                  x <- na.omit(as.numeric(transformed_data[i, qc_names]))
-                                 if(length(x) >= 5) shapiro.test(x)$p.value else NA
+                                 if (length(x) < 5) return("Fewer than 5 observed values")
+                                 if (length(x) > 5000) return("More than 5000 observed values")
+                                 if (any(!is.finite(x))) return("Non-finite values")
+                                 if (length(unique(x)) < 2) return("Identical values")
+                                 p_value <- try(shapiro.test(x)$p.value, silent = TRUE)
+                                 if (inherits(p_value, "try-error") || !is.finite(p_value)) {
+                                   return("Shapiro test failed")
+                                 }
+                                 p_value
                                })
   
-  shapiro_pvalues_adjusted_QC <- p.adjust(shapiro_results_QC, method = "fdr")
-  non_normal_prop_QC <- mean(shapiro_pvalues_adjusted_QC <= 0.05, na.rm = TRUE)
+  testable_QC <- vapply(shapiro_results_QC, is.numeric, logical(1))
+  shapiro_pvalues_adjusted_QC <- p.adjust(unlist(shapiro_results_QC[testable_QC], use.names = FALSE), method = "fdr")
+  non_normal_prop_QC <- if (length(shapiro_pvalues_adjusted_QC)) mean(shapiro_pvalues_adjusted_QC <= 0.05) else NULL
   
-  write_json(non_normal_prop_QC, pretty = TRUE, auto_unbox = TRUE,
+  write_json(if (is.null(non_normal_prop_QC)) "Not testable" else non_normal_prop_QC,
+             pretty = TRUE, auto_unbox = TRUE,
              path = file.path(param_folder, "2_Processing", "11_Data_Transformation", "Propor_non_norma_after_data-transfo_QC.json"))
   
   
@@ -8341,16 +8422,29 @@ perform_data_transformation <- function(input_data, bio_names, qc_names, param_f
     e1071::kurtosis(x_clean, type = 2)
   })
   
-  # Create statistics table 
+  # Create statistics table. Unavailable tests carry a status, not a p-value.
+  # Fully testable columns remain numeric/logical; mixed columns contain the
+  # explicit text "Not testable". Numerical decisions use the vectors above.
+  shapiro_report_BIO <- shapiro_results_BIO
+  shapiro_report_QC <- shapiro_results_QC
+  shapiro_report_BIO[testable_BIO] <- as.list(shapiro_pvalues_adjusted_BIO)
+  shapiro_report_QC[testable_QC] <- as.list(shapiro_pvalues_adjusted_QC)
+  shapiro_report_BIO[!testable_BIO] <- "Not testable"
+  shapiro_report_QC[!testable_QC] <- "Not testable"
+  rejected_BIO <- rejected_QC <- rep(list("Not testable"), nrow(transformed_data))
+  rejected_BIO[testable_BIO] <- as.list(shapiro_pvalues_adjusted_BIO <= 0.05)
+  rejected_QC[testable_QC] <- as.list(shapiro_pvalues_adjusted_QC <= 0.05)
   
   Normality_check_table <- data.frame(
     Variable = rownames(transformed_data),
-    Shapiro_pvalue_BIO = shapiro_pvalues_adjusted_BIO,
-    Shapiro_pvalue_QC = shapiro_pvalues_adjusted_QC,
+    Shapiro_pvalue_BIO = unlist(shapiro_report_BIO, use.names = FALSE),
+    Shapiro_status_BIO = ifelse(testable_BIO, "Tested", unlist(shapiro_results_BIO, use.names = FALSE)),
+    Shapiro_pvalue_QC = unlist(shapiro_report_QC, use.names = FALSE),
+    Shapiro_status_QC = ifelse(testable_QC, "Tested", unlist(shapiro_results_QC, use.names = FALSE)),
     Skewness = skewness_values,
     Kurtosis = kurtosis_values,
-    Non_Normal_Shapiro_BIO = shapiro_pvalues_adjusted_BIO <= 0.05,
-    Non_Normal_Shapiro_QC = shapiro_pvalues_adjusted_QC <= 0.05,
+    Non_Normal_Shapiro_BIO = unlist(rejected_BIO, use.names = FALSE),
+    Non_Normal_Shapiro_QC = unlist(rejected_QC, use.names = FALSE),
     Extreme_Skew = abs(skewness_values) > 1,
     Extreme_Kurt = abs(kurtosis_values) > 1
   )
@@ -8599,11 +8693,19 @@ perform_data_scaling <- function(input_data, qc_names, non_normal_prop_BIO,
     
     output$stats <- renderPrint({
       
-      cat("Variables with normal distribution (BIO):",
-          round((1 - non_normal_prop_BIO) * 100, 1), "%\n")
+      if (length(non_normal_prop_BIO)) {
+        cat("Normality not rejected among testable features (BIO, FDR > 0.05):",
+            round((1 - non_normal_prop_BIO) * 100, 1), "%\n")
+      } else {
+        cat("Normality (BIO): no testable features.\n")
+      }
       
-      cat("Variables with normal distribution (QC):",
-          round((1 - non_normal_prop_QC) * 100, 1), "%\n")
+      if (length(non_normal_prop_QC)) {
+        cat("Normality not rejected among testable features (QC, FDR > 0.05):",
+            round((1 - non_normal_prop_QC) * 100, 1), "%\n")
+      } else {
+        cat("Normality (QC): no testable features.\n")
+      }
       
       cat("\nSummary: Skewness (BIO)\n")
       print(summary(skewness_values))
@@ -10065,6 +10167,7 @@ perform_annotation_Compound_Discoverer <- function(feature_metadata, data_folder
 #' @param data_folder File path to save data files
 #' @param param_folder File path to save parameters
 #' @param outliers List of outlier samples to exclude
+#' @param feature_metadata Feature metadata with native row IDs and a feat_code column, for M...T... display names
 #' 
 
 
@@ -10072,7 +10175,7 @@ perform_annotation_Compound_Discoverer <- function(feature_metadata, data_folder
 
 run_all_hypotheses <- function(metadata_table, pre_scaled_matrix, Final_output, Final_output_annotated = NULL, 
                                Final_output_annotated_complete = NULL, Annotation_summary_table = NULL,
-                               chart_folder, data_folder, param_folder, outliers) {
+                               chart_folder, data_folder, param_folder, outliers, feature_metadata = NULL) {
   
   # Identify hypothesis columns
   
@@ -10138,7 +10241,8 @@ run_all_hypotheses <- function(metadata_table, pre_scaled_matrix, Final_output, 
       outliers = outliers,
       chart_folder = chart_folder,
       data_folder = data_folder,
-      param_folder = param_folder
+      param_folder = param_folder,
+      feature_metadata = feature_metadata
     )
     
     if (is.null(hypo_data)) {
@@ -10233,7 +10337,7 @@ create_output_dirs <- function(chart_folder, data_folder, param_folder, filename
 
 prepare_hypothesis_data <- function(metadata_table, Final_output, Final_output_annotated = NULL,
                                     Final_output_annotated_complete = NULL, hypo_name, outliers, chart_folder,
-                                    data_folder, param_folder) {
+                                    data_folder, param_folder, feature_metadata = NULL) {
   
   # Filter out NA values, and empty cases for this hypothesis
   
@@ -10511,6 +10615,39 @@ prepare_hypothesis_data <- function(metadata_table, Final_output, Final_output_a
     
   }
   
+  # Preserve native IDs and the exact display names of the selected matrix
+  
+  if (matrix_choice == "Final_output") {
+    feature_ids <- rownames(stats_matrix)
+    if (is.null(feature_metadata) || !"feat_code" %in% colnames(feature_metadata)) {
+      stop("Without Annotation requires feature_metadata with native row IDs and a feat_code column.")
+    }
+    feature_labels <- make.unique(as.character(feature_metadata$feat_code[
+      match(feature_ids, rownames(feature_metadata))
+    ]), sep = "_#")
+  } else {
+    if (!"feature_id" %in% colnames(stats_matrix)) {
+      stop("The selected annotation matrix has no feature_id column. Recreate the annotation matrices.")
+    }
+    feature_ids <- as.character(stats_matrix[, "feature_id"])
+    feature_labels <- rownames(stats_matrix)
+  }
+  
+  feature_map <- data.frame(
+    feature_id = feature_ids,
+    feature_label = feature_labels,
+    stringsAsFactors = FALSE
+  )
+  
+  if (nrow(feature_map) == 0 || anyNA(feature_map) ||
+      any(!nzchar(trimws(feature_map$feature_id))) ||
+      any(!nzchar(trimws(feature_map$feature_label))) ||
+      anyDuplicated(feature_map$feature_id) || anyDuplicated(feature_map$feature_label)) {
+    stop("Feature mapping requires non-empty, unique native IDs and display names.")
+  }
+  
+  rownames(stats_matrix) <- feature_map$feature_label
+  
   # Filter matrix to keep only relevant samples
   
   samples_to_keep <- setdiff(metadata_hypo$SampleName, outliers)
@@ -10541,6 +10678,7 @@ prepare_hypothesis_data <- function(metadata_table, Final_output, Final_output_a
     stats_matrix_sup = stats_matrix_sup,
     paths = paths,
     matrix_choice = matrix_choice,
+    feature_map = feature_map,
     filename_hypo = filename_hypo
   ))
 }
@@ -10562,6 +10700,29 @@ run_hypothesis_analyses <- function(hypo_data, pre_scaled_matrix, Annotation_sum
   matrix_choice <- hypo_data$matrix_choice
   paths <- hypo_data$paths
   
+  
+  # Align non-scaled values once, using native IDs rather than rounded labels
+  
+  feature_map <- hypo_data$feature_map
+  
+  if (is.null(feature_map) ||
+      !all(c("feature_id", "feature_label") %in% colnames(feature_map)) ||
+      nrow(feature_map) == 0 || anyNA(feature_map) ||
+      any(!nzchar(trimws(feature_map$feature_id))) ||
+      any(!nzchar(trimws(feature_map$feature_label))) ||
+      anyDuplicated(feature_map$feature_id) || anyDuplicated(feature_map$feature_label) ||
+      !identical(feature_map$feature_label, colnames(stats_matrix_unsup))) {
+    stop("Missing or inconsistent feature mapping. Prepare the hypothesis data again.")
+  }
+  
+  feature_positions <- match(feature_map$feature_id, colnames(pre_scaled_matrix))
+  
+  if (anyDuplicated(colnames(pre_scaled_matrix)) || anyNA(feature_positions)) {
+    stop("Cannot match selected features to unique native IDs in pre_scaled_matrix. Recreate annotations from the matrices before annotation.")
+  }
+  
+  pre_scaled_matrix <- pre_scaled_matrix[, feature_positions, drop = FALSE]
+  colnames(pre_scaled_matrix) <- feature_map$feature_label
   
   # Function to choose the color palette for the groups
   
@@ -12753,7 +12914,7 @@ run_plsda_analysis <- function(stats_matrix, hypo_name, paths, chosen_color, VIP
 
 #' Generate a VIP score summary plot (dot plot + group intensity heatmap)
 #'
-#' @param pre_scaled_matrix Input data matrix without scaling (log-transformed) : Samples × Features
+#' @param pre_scaled_matrix Log-transformed, non-scaled matrix : Samples x Features, aligned to the selected statistical matrix
 #' #' @param matrix_choice  Choice of matrix made at an early stage :  unannotated features / annotated features / features with and without annotations
 #' @param metadata_hypo Metadata table containing sample information : columns ("SampleName", hypo_name)
 #' @param hypo_name Name of the hypothesis currently being analysed (chr)
@@ -12784,48 +12945,7 @@ run_vip_summary_plot <- function(pre_scaled_matrix, matrix_choice, metadata_hypo
   
   X <- pre_scaled_matrix
   
-  # ── Feature annotation ────────────────────────────────────────────────────
-  
-  if (matrix_choice %in% c("Final_output_annotated",
-                           "Final_output_annotated_complete") &&
-      !is.null(Annotation_summary_table)) {
-    
-    X_t <- t(X)   # Features × Samples
-    
-    X_t <- as.data.frame(X_t, check.names = FALSE) %>%
-      tibble::rownames_to_column("Feature_name_code") %>%
-      dplyr::left_join(
-        Annotation_summary_table[, c("Feature_name_code", "Only_annot_unique_name")],
-        by = "Feature_name_code"
-      )
-    
-    if (matrix_choice == "Final_output_annotated") {
-      
-      # Removal of all unannotated features (NA in Only_annot_unique_name)
-      X_t <- X_t %>%
-        dplyr::filter(!is.na(Only_annot_unique_name))
-      
-    } else {
-      
-      X_t <- X_t %>%
-        dplyr::mutate(
-          Only_annot_unique_name = ifelse(is.na(Only_annot_unique_name),
-                                          Feature_name_code,
-                                          Only_annot_unique_name)
-        )
-    }
-    
-    X_t <- X_t %>%
-      mutate(
-        Only_annot_unique_name = make.unique(
-          Only_annot_unique_name,
-          sep = "_#"
-        )) %>%
-      dplyr::select(-Feature_name_code) %>%
-      tibble::column_to_rownames("Only_annot_unique_name")
-    
-    X <- as.data.frame(t(X_t), check.names = FALSE)   # Samples × Features
-  }
+  # Native IDs and display names were aligned in run_hypothesis_analyses.
   
   # ── Attach Sample column ──────────────────────────────────────────────────
   
@@ -12993,7 +13113,7 @@ run_vip_summary_plot <- function(pre_scaled_matrix, matrix_choice, metadata_hypo
 
 #' Generate a VIP score boxplot summary (one panel per feature)
 #'
-#' @param pre_scaled_matrix Input data matrix without scaling (log-transformed) : Samples × Features
+#' @param pre_scaled_matrix Log-transformed, non-scaled matrix : Samples x Features, aligned to the selected statistical matrix
 #' @param matrix_choice  Choice of matrix made at an early stage :  unannotated features / annotated features / features with and without annotations
 #' @param metadata_hypo Metadata table containing sample information : columns ("SampleName", hypo_name)
 #' @param hypo_name Name of the hypothesis currently being analysed (chr)
@@ -13029,48 +13149,7 @@ run_vip_boxplot <- function(pre_scaled_matrix, matrix_choice, metadata_hypo,
   
   X <- pre_scaled_matrix
   
-  # ── Feature annotation ────────────────────────────────────────────────────
-  
-  if (matrix_choice %in% c("Final_output_annotated",
-                           "Final_output_annotated_complete") &&
-      !is.null(Annotation_summary_table)) {
-    
-    X_t <- t(X)   # Features × Samples
-    
-    X_t <- as.data.frame(X_t, check.names = FALSE) %>%
-      tibble::rownames_to_column("Feature_name_code") %>%
-      dplyr::left_join(
-        Annotation_summary_table[, c("Feature_name_code", "Only_annot_unique_name")],
-        by = "Feature_name_code"
-      )
-    
-    if (matrix_choice == "Final_output_annotated") {
-      
-      # Removal of all unannotated features (NA in Only_annot_unique_name)
-      X_t <- X_t %>%
-        dplyr::filter(!is.na(Only_annot_unique_name))
-      
-    } else {
-      
-      X_t <- X_t %>%
-        dplyr::mutate(
-          Only_annot_unique_name = ifelse(is.na(Only_annot_unique_name),
-                                          Feature_name_code,
-                                          Only_annot_unique_name)
-        )
-    }
-    
-    X_t <- X_t %>%
-      mutate(
-        Only_annot_unique_name = make.unique(
-          Only_annot_unique_name,
-          sep = "_#"
-        )) %>%
-      dplyr::select(-Feature_name_code) %>%
-      tibble::column_to_rownames("Only_annot_unique_name")
-    
-    X <- as.data.frame(t(X_t), check.names = FALSE)   # Samples × Features
-  }
+  # Native IDs and display names were aligned in run_hypothesis_analyses.
   
   # ── Attach Sample column ──────────────────────────────────────────────────
   
@@ -14120,7 +14199,7 @@ run_RF_analysis <- function(stats_matrix, hypo_name, paths){
 #'                    within the reduced set. Results are hypothesis-generating only
 #'                    (feature selection and testing share the same data).
 #'
-#' @param pre_scaled_matrix Input data matrix without scaling (log-transformed) : Samples × Features
+#' @param pre_scaled_matrix Log-transformed, non-scaled matrix : Samples x Features, aligned to the selected statistical matrix
 #' @param matrix_choice             Choice of matrix made at an early stage :  unannotated features / annotated features / features with and without annotations
 #' @param metadata_hypo             Metadata table : columns ("SampleName", hypo_name, "PairedID")
 #' @param hypo_name                 Name of the hypothesis currently being analysed (chr)
@@ -14215,48 +14294,7 @@ run_volcano_analysis <- function(pre_scaled_matrix,
   
   X <- pre_scaled_matrix
   
-  # ── Feature annotation ────────────────────────────────────────────────────
-  
-  if (matrix_choice %in% c("Final_output_annotated",
-                           "Final_output_annotated_complete") &&
-      !is.null(Annotation_summary_table)) {
-    
-    X_t <- t(X)   # Features × Samples
-    
-    X_t <- as.data.frame(X_t, check.names = FALSE) %>%
-      tibble::rownames_to_column("Feature_name_code") %>%
-      dplyr::left_join(
-        Annotation_summary_table[, c("Feature_name_code", "Only_annot_unique_name")],
-        by = "Feature_name_code"
-      )
-    
-    if (matrix_choice == "Final_output_annotated") {
-      
-      # Removal of all unannotated features (NA in Only_annot_unique_name)
-      X_t <- X_t %>%
-        dplyr::filter(!is.na(Only_annot_unique_name))
-      
-    } else {
-      
-      X_t <- X_t %>%
-        dplyr::mutate(
-          Only_annot_unique_name = ifelse(is.na(Only_annot_unique_name),
-                                          Feature_name_code,
-                                          Only_annot_unique_name)
-        )
-    }
-    
-    X_t <- X_t %>%
-      mutate(
-        Only_annot_unique_name = make.unique(
-          Only_annot_unique_name,
-          sep = "_#"
-        )) %>%
-      dplyr::select(-Feature_name_code) %>%
-      tibble::column_to_rownames("Only_annot_unique_name")
-    
-    X <- as.data.frame(t(X_t), check.names = FALSE)   # Samples × Features
-  }
+  # Native IDs and display names were aligned in run_hypothesis_analyses.
   
   # ── Attach Sample column ──────────────────────────────────────────────────
   

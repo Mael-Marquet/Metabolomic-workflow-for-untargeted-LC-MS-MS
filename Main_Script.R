@@ -990,25 +990,8 @@ if (has_annotation) {
   ##########################################################################################################
   ##################################   Adding annotations to the matrix  ###################################
   
-  # Left_join to change the rownames : name_code
-  
-  pre_scaled_matrix <- as.data.frame(t(pre_scaled_matrix)) %>%
-    tibble::rownames_to_column("feature_id") %>%
-    left_join(
-      Annotation_summary_table[, c("feature_id", "Feature_name_code")],
-      by = "feature_id"
-    )
-  
-  rownames(pre_scaled_matrix) <- make.unique(
-    pre_scaled_matrix$Feature_name_code,
-    sep = "_#"
-  )
-  
-  pre_scaled_matrix <- pre_scaled_matrix %>%
-    select(-any_of(c(
-      "Feature_name_code",
-      "feature_id"
-    ))) %>% t()
+  # Keep native feature IDs in pre_scaled_matrix.
+  # Display names are aligned to the selected statistical matrix per hypothesis.
   
   # Version with annotated features and features with name code : complete
   
