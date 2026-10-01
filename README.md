@@ -247,6 +247,20 @@ This step is recommended — the `check_and_load()` function in the main script 
 
 ------------------------------------------------------------------------
 
+### External Tools and Databases
+
+| Tool/Database | Role | Reference |
+|---|---|---|
+| [GNPS2 - Everything Bagel](https://gnps2.org) | Feature detection, alignment, and MS/MS analysis (local or online execution) | [GNPS2 Documentation](https://doi.org/10.64898/2026.08.17.744735) |
+| [MSConvert](https://proteowizard.sourceforge.io/download.html) | Raw spectrometer data conversion to .mzML format | Part of ProteoWizard |
+
+**Notes:**
+- GNPS2 can be executed locally (recommended for data privacy) or through the online GNPS2 platform
+- The workflow supports the Everything Bagel module for automated parameter optimization and feature detection
+- MSConvert must be used externally before running the workflow (conversion is not integrated)
+
+------------------------------------------------------------------------
+
 ## Input Files
 
 The workflow expects the following input files:

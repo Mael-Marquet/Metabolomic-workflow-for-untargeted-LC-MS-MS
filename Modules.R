@@ -13938,7 +13938,7 @@ run_RF_analysis <- function(stats_matrix, hypo_name, paths){
                        value = defaults$mtry %||% floor(sqrt(ncol(X))), min = 1, step = 1),
           
           selectInput("importance", "Variable importance",
-                      choices = c("none", "impurity", "impurity_corrected", "permutation"),
+                      choices = c("impurity", "impurity_corrected", "permutation"),
                       selected = defaults$importance %||% "permutation"),
           
           checkboxInput("scale.permutation.importance", "Scale permutation importance",
