@@ -3434,10 +3434,7 @@ export_MS2_spectra <- function(xdata_filled, param_folder, data_folder) {
             do_extraction       = TRUE,
             ppm_value           = input$ppm_value,
             spectra_method      = input$spectra_method,
-            consensus_criterion = input$consensus_criterion,
-            weight_tic          = input$weight_tic,
-            weight_entropy      = input$weight_entropy,
-            weight_n_peaks      = input$weight_n_peaks
+            min_prop            = input$min_prop
           ))
         }
       })
@@ -3536,7 +3533,7 @@ export_MS2_spectra <- function(xdata_filled, param_folder, data_folder) {
     p            = rep(1, length(feature_ms2)),
     ppm          = MS2_export_list$ppm_value,
     peaks        = "intersect",
-    minProp      = 0.75
+    minProp      = MS2_export_list$min_prop
   )
   
   # Number of fragments per spectrum

@@ -440,6 +440,15 @@ if(!isTRUE(preprocessing_method_choice_res$is_EB)){
   
   # ===============================         GNPS2 Everything Bagel         ===============================
   
+  # Validate native feature IDs before creating the matrix and metadata
+  
+  eb_feature_ids <- as.character(preprocessing_method_choice_res$aligned_features[["row ID"]])
+  
+  if (!length(eb_feature_ids) || anyNA(eb_feature_ids) ||
+      any(!nzchar(trimws(eb_feature_ids))) || anyDuplicated(eb_feature_ids)) {
+    stop("Everything Bagel row ID values must be present, non-empty and unique.")
+  }
+  
   # Raw matrix filtering and cleaning sample names
   
   raw_intensity_matrix <- preprocessing_method_choice_res$aligned_features[, -c(2:29)] %>%
@@ -461,6 +470,14 @@ if(!isTRUE(preprocessing_method_choice_res$is_EB)){
   
   feature_metadata <- feature_metadata[, c(1:29)] %>%
     dplyr::mutate(feat_code = paste0("M", round(mzmed, 4),"T", round(rtmed, 2)))
+  
+  # Use the same native IDs for intensity, RT and annotation joins
+  
+  rownames(feature_metadata) <- eb_feature_ids
+  
+  if (!identical(rownames(raw_intensity_matrix), rownames(feature_metadata))) {
+    stop("Everything Bagel feature IDs are not aligned between the matrix and metadata.")
+  }
   
   
   # Data save
