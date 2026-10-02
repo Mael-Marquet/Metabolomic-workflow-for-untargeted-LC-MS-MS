@@ -435,6 +435,12 @@ All outputs are automatically saved and organized following the `Results/` direc
 
 ------------------------------------------------------------------------
 
+## Acknowledgments
+
+This project was developed with assistance from various tools and resources, including AI-assisted development for documentation and code review.
+
+------------------------------------------------------------------------
+
 ## License
 
 This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for details.
