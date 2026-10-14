@@ -428,6 +428,22 @@ All outputs are automatically saved and organized following the `Results/` direc
 
 ## Limitations
 
+### Scientific
+
+- **Missing-value imputation**: QRILC assumes left-censored missingness. Imputation can affect subsequent results, and its uncertainty is not propagated into statistical tests.
+
+- **Annotation and quantification**: Spectral matches may remain ambiguous, especially for isomers. Identification confidence depends on supporting retention-time and authentic-standard evidence. Intensities represent relative abundance, not calibrated concentrations.
+
+- **PLS-DA / OPLS-DA**: Score-plot separation does not establish reliable discrimination. Two PLS components or one orthogonal OPLS component may be imposed when not retained by automatic selection. Permutation p-values concern internal Q2, not test BA; the BA standard deviation is not a confidence interval. Only successful resampling fits contribute to metrics.
+
+- **Validation scope and sample independence**: Scaling and component selection use training data, but upstream preprocessing is not nested within validation. Outcome-dependent filtering can inflate performance estimates. Splits and permutations do not account for PairedID. Dependent samples and confounding require caution; predictive generalisation needs independent confirmation.
+
+- **Paired / longitudinal analyses**: Small subject numbers limit mixed-model inference and statistical power. Subjects absent from either comparison group, and features with failed or singular model fits, are excluded.
+
+- **VIP selection and multiple testing**: VIP scores and stability are descriptive measures. VIP-prefiltered volcano analyses reuse the same data, introducing selection bias not addressed by BH correction. BH is applied separately per tested feature set and hypothesis, without global correction across hypotheses.
+
+### Pratical
+
 -   **Raw data conversion** : Raw spectrometer data must be converted to `.mzML` format using an external tool (e.g. MSConvert) before running the workflow ; this conversion step is not integrated into the pipeline.
 -   **Annotation** : Annotation using third-party spectral libraries requires an internet connection ; a local (in-house) database can be used as an offline alternative.
 -   **Sequential execution** : The pipeline is designed to run sequentially, with each step depending on the previous one. Going back to an earlier step without fully understanding its impact on downstream checkpoints can lead to inconsistent results.
