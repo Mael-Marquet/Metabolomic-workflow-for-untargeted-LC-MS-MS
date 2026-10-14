@@ -10170,6 +10170,7 @@ perform_annotation_Compound_Discoverer <- function(feature_metadata, data_folder
 #' @param param_folder File path to save parameters
 #' @param outliers List of outlier samples to exclude
 #' @param feature_metadata Feature metadata with native row IDs and a feat_code column, for M...T... display names
+#' @param scaling_method Scaling choice returned by perform_data_scaling()
 #' 
 
 
@@ -10177,7 +10178,8 @@ perform_annotation_Compound_Discoverer <- function(feature_metadata, data_folder
 
 run_all_hypotheses <- function(metadata_table, pre_scaled_matrix, Final_output, Final_output_annotated = NULL, 
                                Final_output_annotated_complete = NULL, Annotation_summary_table = NULL,
-                               chart_folder, data_folder, param_folder, outliers, feature_metadata = NULL) {
+                               chart_folder, data_folder, param_folder, outliers, feature_metadata = NULL,
+                               scaling_method) {
   
   # Identify hypothesis columns
   
@@ -10255,7 +10257,7 @@ run_all_hypotheses <- function(metadata_table, pre_scaled_matrix, Final_output, 
     # Run all analyses for this hypothesis
     
     Hypothesis_Result <- run_hypothesis_analyses(hypo_data, pre_scaled_matrix, Annotation_summary_table,
-                                                 chart_folder, data_folder, param_folder)
+                                                 chart_folder, data_folder, param_folder, scaling_method)
     
     # Global Statistical Summary
     
@@ -10697,7 +10699,7 @@ prepare_hypothesis_data <- function(metadata_table, Final_output, Final_output_a
 # Analysis Function
 
 run_hypothesis_analyses <- function(hypo_data, pre_scaled_matrix, Annotation_summary_table, chart_folder,
-                                    data_folder, param_folder) {
+                                    data_folder, param_folder, scaling_method) {
   
   # Unpack data
   
@@ -10732,6 +10734,12 @@ run_hypothesis_analyses <- function(hypo_data, pre_scaled_matrix, Annotation_sum
   
   pre_scaled_matrix <- pre_scaled_matrix[, feature_positions, drop = FALSE]
   colnames(pre_scaled_matrix) <- feature_map$feature_label
+  
+  # PLS/OPLS learn scaling within each training set, using the selected method.
+  stats_matrix_pls <- as.data.frame(
+    pre_scaled_matrix[rownames(stats_matrix_sup), , drop = FALSE], check.names = FALSE
+  )
+  stats_matrix_pls[[hypo_name]] <- stats_matrix_sup[[hypo_name]]
   
   # Function to choose the color palette for the groups
   
@@ -10926,15 +10934,15 @@ run_hypothesis_analyses <- function(hypo_data, pre_scaled_matrix, Annotation_sum
             column(6,
                    wellPanel(
                      style = "border-left: 4px solid #4CAF50;",
-                     h5(icon("check-circle"), strong(" All features — Confirmatory"),
+                     h5(icon("check-circle"), strong(" All features — Global univariate analysis"),
                         style = "color: #2E7D32;"),
                      p("Statistical tests (Linear Mixed Model: paired data / Wilcoxon: non-paired data) are applied to ",
                        strong("all detected features"),
                        ". P-values are then adjusted using the Benjamini-Hochberg (BH) multiple testing correction across the full feature set."),
                      tags$ul(
-                       tags$li("Maximum statistical rigour"),
+                       tags$li("All features tested without VIP pre-selection"),
                        tags$li("Higher multiple testing penalty"),
-                       tags$li("Results are conservative but robust")
+                       tags$li("BH correction across the full tested feature set")
                      )
                    )
             ),
@@ -10965,11 +10973,11 @@ run_hypothesis_analyses <- function(hypo_data, pre_scaled_matrix, Annotation_sum
                style = "color: #F57F17; margin-top: 0;"),
             tags$ul(
               tags$li(strong("Significant in both strategies → "),
-                      "strong candidate, signal is robust regardless of the testing approach."),
+                      "candidate supported by both analyses of the same dataset."),
               tags$li(strong("Significant in exploratory only → "),
                       "weak signal, requires independent validation before any biological conclusion."),
-              tags$li(strong("Significant in confirmatory only → "),
-                      "reliable hit not necessarily captured by the multivariate model.")
+              tags$li(strong("Significant in global univariate analysis only → "),
+                      "feature associated with the group comparison, not selected by the VIP threshold.")
             )
           )
         )
@@ -10992,9 +11000,11 @@ run_hypothesis_analyses <- function(hypo_data, pre_scaled_matrix, Annotation_sum
   }
   VIP_score_threshold <- get_VIP_score_threshold()
   
-  PLSDA_res <- run_plsda_analysis(stats_matrix_sup, hypo_name, paths, chosen_color, VIP_score_threshold)
+  PLSDA_res <- run_plsda_analysis(stats_matrix_pls, hypo_name, paths, chosen_color,
+                                  VIP_score_threshold, scaling_method)
   
-  OPLSDA_res <- run_oplsda_analysis(stats_matrix_sup, hypo_name, paths, chosen_color, VIP_score_threshold)
+  OPLSDA_res <- run_oplsda_analysis(stats_matrix_pls, hypo_name, paths, chosen_color,
+                                    VIP_score_threshold, scaling_method)
   
   RF_res <- run_RF_analysis(stats_matrix_sup, hypo_name, paths)
   
@@ -11873,9 +11883,125 @@ run_heatmap_analysis <- function(stats_matrix, metadata_hypo, hypo_name, paths, 
 
 #-------------------------------------------------------------------------------------------
 
+#' Scale a PLS/OPLS training set and apply its parameters to the test set.
+#' Uses the same definitions as perform_data_scaling(), including MAD constant = 1.
+scale_plsda_split <- function(X_train, scaling_method, X_test = NULL) {
+  X_train <- as.matrix(X_train)
+  keep <- setdiff(seq_len(ncol(X_train)), caret::nearZeroVar(X_train))
+  X_train <- X_train[, keep, drop = FALSE]
+  
+  center <- if (scaling_method == "Robust Scaling") {
+    apply(X_train, 2, median, na.rm = TRUE)
+  } else {
+    colMeans(X_train, na.rm = TRUE)
+  }
+  divisor <- switch(scaling_method,
+                    "Auto-Scaling" = apply(X_train, 2, sd, na.rm = TRUE),
+                    "Pareto Scaling" = sqrt(apply(X_train, 2, sd, na.rm = TRUE)),
+                    "Robust Scaling" = apply(X_train, 2, mad, na.rm = TRUE, constant = 1),
+                    stop("Unknown scaling method: ", scaling_method)
+  )
+  divisor[divisor == 0] <- 1
+  
+  list(
+    train = scale(X_train, center = center, scale = divisor),
+    test = if (!is.null(X_test)) {
+      scale(as.matrix(X_test)[, keep, drop = FALSE], center = center, scale = divisor)
+    } else NULL,
+    parameters = list(method = scaling_method, features = colnames(X_train),
+                      center = center, scale = divisor)
+  )
+}
+
+#' Repeated stratified train/test validation and VIP selection frequency.
+#' Component selection and feature filtering use only the training samples.
+validate_plsda <- function(X, Y, scaling_method, VIP_score_threshold,
+                           opls = FALSE, n_resamples = 100L, train_fraction = 0.8,
+                           seed = 31L) {
+  classes <- levels(Y)
+  ba_vec <- rep(NA_real_, n_resamples)
+  vip_count <- setNames(integer(ncol(X)), colnames(X))
+  
+  # Generate all splits first: PLS and OPLS use identical samples regardless
+  # of any random numbers consumed while fitting their models.
+  set.seed(seed)
+  train_sets <- lapply(seq_len(n_resamples), function(b) {
+    unlist(lapply(classes, function(cl) {
+      idx <- which(Y == cl)
+      sample(idx, max(1L, floor(train_fraction * length(idx))), replace = FALSE)
+    }), use.names = FALSE)
+  })
+  
+  for (b in seq_len(n_resamples)) {
+    train_idx <- train_sets[[b]]
+    test_idx <- setdiff(seq_len(nrow(X)), train_idx)
+    
+    tryCatch({
+      scaled <- scale_plsda_split(X[train_idx, , drop = FALSE], scaling_method,
+                                  X[test_idx, , drop = FALSE])
+      n_train <- length(train_idx)
+      folds <- min(if (n_train >= 100L) 10L else 5L, n_train)
+      
+      m <- ropls::opls(scaled$train, Y[train_idx],
+                       predI = if (opls) 1L else NA,
+                       orthoI = if (opls) NA else 0L,
+                       scaleC = "none", crossvalI = folds, permI = 0L,
+                       algoC = "nipals", fig.pdfC = "none", info.txtC = "none")
+      
+      # Keep the same minimum-component fallback as the displayed model,
+      # but decide it separately within each training set.
+      if ((opls && ncol(m@orthoScoreMN) == 0L) ||
+          (!opls && ncol(m@scoreMN) < 2L)) {
+        m <- ropls::opls(scaled$train, Y[train_idx],
+                         predI = if (opls) 1L else 2L,
+                         orthoI = if (opls) 1L else 0L,
+                         scaleC = "none", crossvalI = folds, permI = 0L,
+                         algoC = "nipals", fig.pdfC = "none", info.txtC = "none")
+      }
+      
+      pred <- ropls::predict(m, scaled$test)
+      true <- Y[test_idx]
+      ba <- mean(vapply(classes, function(cl) {
+        mean(pred[true == cl] == cl)
+      }, numeric(1)))
+      if (!is.finite(ba)) next
+      
+      vip <- ropls::getVipVn(m)
+      selected <- names(vip)[!is.na(vip) & vip >= VIP_score_threshold]
+      vip_count[selected] <- vip_count[selected] + 1L
+      ba_vec[b] <- ba
+    }, error = function(e) NULL)
+  }
+  
+  ba_vec <- ba_vec[is.finite(ba_vec)]
+  n_valid <- length(ba_vec)
+  list(
+    metrics = list(
+      method = "Repeated stratified train/test",
+      BA_mean = if (n_valid) round(mean(ba_vec), 3) else NA_real_,
+      BA_median = if (n_valid) round(median(ba_vec), 3) else NA_real_,
+      BA_sd = round(sd(ba_vec), 3),
+      n_valid = n_valid, n_resamples = n_resamples,
+      train_fraction = train_fraction, seed = seed,
+      scaling_method = scaling_method, VIP_score_threshold = VIP_score_threshold
+    ),
+    # A feature filtered out in a valid training split counts as not selected.
+    vip_stability = data.frame(
+      feature = names(vip_count),
+      vip_stability_pct = if (n_valid) round(100 * vip_count / n_valid, 1) else NA_real_,
+      row.names = NULL
+    )
+  )
+}
+
+
 #' Perform OPLS-DA analysis
 #'
-#' @param stats_matrix Input data matrix centered and scaled : Samples * Features + 1 class column
+#' @param stats_matrix Input data before scaling : Samples * Features + 1 class column
+#' @param scaling_method Scaling choice returned by perform_data_scaling()
+#' @param seed Random seed for permutations and repeated train/test splits
+#' @param n_resamples Number of repeated stratified train/test splits
+#' @param permI Number of permutations for the full model
 #' @param hypo_name Name of the hypothesis currently being analysed (chr)
 #' @param paths Output paths for saving results (list of chr)
 #' @param chosen_color Colours associated with each group name in the hypothesis currently being tested (Named chr)
@@ -11883,31 +12009,24 @@ run_heatmap_analysis <- function(stats_matrix, metadata_hypo, hypo_name, paths, 
 #' @return List containing OPLS-DA results and plots
 
 
-run_oplsda_analysis <- function(stats_matrix, hypo_name, paths, chosen_color, VIP_score_threshold) {
+run_oplsda_analysis <- function(stats_matrix, hypo_name, paths, chosen_color, VIP_score_threshold,
+                                scaling_method, seed = 31L, n_resamples = 100L, permI = 1000L) {
   
   if (length(unique(stats_matrix[[hypo_name]])) != 2) return(NULL)
   
   # ── Preprocessing ─────────────────────────────────────────────────────────
   
-  X <- stats_matrix[, colnames(stats_matrix) != hypo_name]
-  Y <- as.factor(stats_matrix[, hypo_name])
+  X_raw <- as.matrix(stats_matrix[, colnames(stats_matrix) != hypo_name, drop = FALSE])
+  Y <- droplevels(as.factor(stats_matrix[, hypo_name]))
   
-  nzv <- nearZeroVar(X, names = TRUE)
-  if (length(nzv) > 0) X <- X[, !colnames(X) %in% nzv]
+  scaled <- scale_plsda_split(X_raw, scaling_method)
+  X <- scaled$train
   
   n <- nrow(X)
   
   # ── K selection for internal ropls CV ─────────────────────────────────────
   
-  # This K is used ONLY to select predI (number of predictive components).
-  # It is NOT used to estimate model performance — Bootstrap handles that.
-  #
-  # Rodriguez-Perez 2018 (Analytical and Bioanalytical Chemistry) showed that LOO is the worst
-  # CV estimator in omics data: highest bias AND highest variance, especially
-  # in small sample conditions. Even with n < 30, LOO should be avoided.
-  #
-  # A minimum of 5 folds ensures each validation fold contains enough samples
-  # to produce a stable Q2 estimate for component selection.
+  # Internal CV selects components; held-out BA is estimated separately.
   
   crossval_fold <- dplyr::case_when(
     n >= 100 ~ 10L,
@@ -11917,11 +12036,12 @@ run_oplsda_analysis <- function(stats_matrix, hypo_name, paths, chosen_color, VI
   # ── Main model fitting ────────────────────────────────────────────────────
   
   # orthoI = NA  : ropls selects the optimal number of orthogonal components
-  #               automatically using crossval_fold CV and Q2 maximisation.
-  # permI = 1000 : permutation test on the full model to assess significance.
+  #               automatically using crossval_fold internal CV.
+  # permI controls the permutation test on the full model (default: 1000).
   
+  set.seed(seed)
   model <- ropls::opls(X, Y, predI = 1L, orthoI = NA, scaleC = "none",
-                       crossvalI = crossval_fold, permI = 1000, algoC = "nipals")
+                       crossvalI = crossval_fold, permI = permI, algoC = "nipals")
   
   # Number of predictive components
   npred_comp <- ncol(model@scoreMN)
@@ -11944,7 +12064,7 @@ run_oplsda_analysis <- function(stats_matrix, hypo_name, paths, chosen_color, VI
                          orthoI    = 1,
                          scaleC    = "none",
                          crossvalI = crossval_fold,
-                         permI     = 1000,       
+                         permI     = permI,
                          algoC     = "nipals")
     
     # Re-check : ropls may STILL return an empty object even with orthoI = 1
@@ -11960,93 +12080,12 @@ run_oplsda_analysis <- function(stats_matrix, hypo_name, paths, chosen_color, VI
     }
   } 
   
-  # ── Bootstrap CV (internal resampling) ────────────────────────────────────
+  # ── Repeated train/test validation and VIP stability ───────────────────────
   
-  bootstrap_cv_oplsda <- function(X, Y, crossval_fold, n_ortho, n_boot = 100) {
-    
-    n       <- nrow(X)
-    classes <- levels(Y)
-    ba_vec  <- rep(NA_real_, n_boot)
-    
-    for (b in seq_len(n_boot)) {
-      
-      # Stratified bootstrap sampling : sample independently within each class
-      # to guarantee balanced class representation in every training set.
-      
-      train_idx <- unlist(lapply(classes, function(cl) {
-        idx_cl <- which(Y == cl)
-        sample(idx_cl, length(idx_cl), replace = TRUE)
-      }))
-      
-      # OOB samples
-      
-      test_idx <- setdiff(seq_len(n), unique(train_idx))
-      
-      # Safety check : require ALL classes present in OOB (not just >= 2),
-      # so that Balanced Accuracy is always averaged over the same number
-      # of classes across every bootstrap iteration.
-      
-      if (length(test_idx) < 2 || length(unique(Y[test_idx])) < length(classes)) next
-      
-      tryCatch({
-        
-        # Sub-model trained on bootstrap sample only
-        
-        m <- ropls::opls(
-          X[train_idx, , drop = FALSE],
-          Y[train_idx],
-          predI     = 1L,
-          orthoI    = n_ortho,
-          scaleC    = "none",
-          crossvalI = crossval_fold,
-          permI     = 0L,
-          algoC     = "nipals"
-        )
-        
-        # Predict OOB samples — these were never seen during sub-model training.
-        
-        pred <- ropls::predict(m, X[test_idx, , drop = FALSE])
-        true <- Y[test_idx]
-        
-        # ── Balanced Accuracy : mean of per-class recall ─────────────────────
-        #
-        # For each class, we compute the proportion of its own OOB samples
-        # correctly predicted (its recall / sensitivity). Averaging these
-        # recalls across classes gives equal weight to every class no matter
-        # its size, unlike raw accuracy which favours the majority class.
-        # For K = 2 classes this is mathematically identical to
-        # (sensitivity + specificity) / 2.
-        
-        recalls_per_class <- rep(NA_real_, length(classes))
-        
-        for (k in seq_along(classes)) {
-          cl          <- classes[k]
-          idx_class_k <- which(true == cl)
-          
-          if (length(idx_class_k) > 0) {
-            recalls_per_class[k] <- mean(pred[idx_class_k] == cl)
-          }
-        }
-        
-        ba_vec[b] <- mean(recalls_per_class, na.rm = TRUE)
-        
-      }, error = function(e) {
-        ba_vec[b] <<- NA_real_
-      })
-    }
-    
-    ba_vec <- ba_vec[!is.na(ba_vec)]
-    
-    list(
-      BA_mean   = round(mean(ba_vec), 3),   # BA_mean   : average balanced accuracy across valid Bootstrap iterations
-      BA_median = round(median(ba_vec), 3), # BA_median : median — more robust to extreme draws than mean
-      BA_sd     = round(sd(ba_vec), 3),     # BA_sd     : standard deviation of BA = variance of the estimator
-      n_valid   = length(ba_vec)            # n_valid   : number of successful iterations (should be close to n_boot)
-    )
-  }
-  
-  set.seed(31)
-  boot_results <- bootstrap_cv_oplsda(X, Y, crossval_fold, n_ortho, n_boot = 100)
+  validation <- validate_plsda(X_raw, Y, scaling_method, VIP_score_threshold,
+                               opls = TRUE, n_resamples = n_resamples, seed = seed)
+  # Keep the existing result key for downstream code; metrics record the method.
+  boot_results <- validation$metrics
   
   # ── Permutation p-value ───────────────────────────────────────────────────
   
@@ -12060,9 +12099,9 @@ run_oplsda_analysis <- function(stats_matrix, hypo_name, paths, chosen_color, VI
   perm_plot <- ggplot(perm_df, aes(Q2)) +
     geom_histogram(bins = 30, fill = "lightblue", color = "black") +
     geom_vline(xintercept = ref_Q2, color = "red", linewidth = 1.2) +
-    labs(title = paste0("Permuted Q2 distribution — p = ",
+    labs(title = paste0("Internal Q2 permutation test — p = ",
                         round(permutation_pval * 100, 2), " %"),
-         x = "Permuted Q2", y = "Count") +
+         x = "Permuted internal Q2", y = "Count") +
     theme_minimal() +
     theme(plot.title = element_text(hjust = 0.5))
   
@@ -12091,6 +12130,7 @@ run_oplsda_analysis <- function(stats_matrix, hypo_name, paths, chosen_color, VI
   # ── VIP ───────────────────────────────────────────────────────────────────
   
   vip_df <- data.frame(feature = names(model@vipVn), vip_score = model@vipVn) %>%
+    dplyr::left_join(validation$vip_stability, by = "feature") %>%
     dplyr::arrange(dplyr::desc(vip_score))
   
   # ── Stats label ───────────────────────────────────────────────────────────
@@ -12101,13 +12141,14 @@ run_oplsda_analysis <- function(stats_matrix, hypo_name, paths, chosen_color, VI
   stats_label <- paste0(
     "R2X : ", round(model@summaryDF$`R2X(cum)`, 3),
     "\nR2Y : ", round(model@summaryDF$`R2Y(cum)`, 3),
-    "\nQ2  : ", round(model@summaryDF$`Q2(cum)`, 3),
-    "\n── Bootstrap CV (", boot_results$n_valid, " iter) ──",
-    "\nBA : ", round(boot_results$BA_mean * 100, 1),
+    "\nInternal Q2 : ", round(model@summaryDF$`Q2(cum)`, 3),
+    "\n── Repeated train/test (", boot_results$n_valid,
+    "/", boot_results$n_resamples, " valid) ──",
+    "\nTest BA (mean ± SD) : ", round(boot_results$BA_mean * 100, 1),
     " ± ", round(boot_results$BA_sd * 100, 1), " %",
     "\n(random chance = ", round(chance_BA * 100, 1), "%)",
-    "\n── Significance ──",
-    "\np(perm) : ", round(permutation_pval, 3)
+    "\n── Q2 permutation test ──",
+    "\np(perm Q2) : ", round(permutation_pval, 3)
   )
   
   # ── UI ────────────────────────────────────────────────────────────────────
@@ -12127,7 +12168,7 @@ run_oplsda_analysis <- function(stats_matrix, hypo_name, paths, chosen_color, VI
         },
         
         h4("Display options"),
-        checkboxInput("show_stats", "Show metrics (R2X/R2Y/Q2/BA/p)", value = TRUE),
+        checkboxInput("show_stats", "Show metrics (R2X/R2Y/internal Q2/test BA/p Q2)", value = TRUE),
         checkboxInput("show_ellipse", "Confidence ellipses (95%)", value = TRUE),
         
         conditionalPanel(
@@ -12162,7 +12203,9 @@ run_oplsda_analysis <- function(stats_matrix, hypo_name, paths, chosen_color, VI
         tabsetPanel(
           tabPanel("Score plot",   plotOutput("plot",      height = "75vh")),
           tabPanel("Permutations", plotOutput("perm_plot", height = "75vh")),
-          tabPanel("VIP table",    DT::dataTableOutput("vip_table"))
+          tabPanel("VIP table",
+                   helpText("VIP stability (%): percentage of valid training splits with VIP >= the selected threshold."),
+                   DT::dataTableOutput("vip_table"))
         )
       )
     )
@@ -12300,7 +12343,7 @@ run_oplsda_analysis <- function(stats_matrix, hypo_name, paths, chosen_color, VI
     output$vip_table <- DT::renderDataTable(
       DT::datatable(vip_df, rownames = FALSE,
                     options = list(pageLength = 20, searchHighlight = TRUE)) %>%
-        DT::formatRound("vip_score", 2)
+        DT::formatRound(c("vip_score", "vip_stability_pct"), 2)
     )
     
     output$export_status <- renderText({ export_msg() })
@@ -12355,7 +12398,12 @@ run_oplsda_analysis <- function(stats_matrix, hypo_name, paths, chosen_color, VI
                      show_ellipse  = input$show_ellipse,
                      ellipse_type  = input$ellipse_type,
                      ellipse_alpha = input$ellipse_alpha,
-                     show_labels   = input$show_labels)
+                     show_labels   = input$show_labels,
+                     scaling_method = scaling_method,
+                     seed = seed, n_resamples = n_resamples,
+                     train_fraction = boot_results$train_fraction,
+                     n_permutations = permI,
+                     VIP_score_threshold = VIP_score_threshold)
       
       ggsave(file.path(paths$sup_chart, "OPLS-DA", paste0("OPLS-DA_Permutation_", hypo_name, ".pdf")),
              plot = perm_plot, width = 15, height = 10, bg = "white")
@@ -12375,11 +12423,12 @@ run_oplsda_analysis <- function(stats_matrix, hypo_name, paths, chosen_color, VI
                            pretty = TRUE, auto_unbox = TRUE)
       
       jsonlite::write_json(boot_results,
-                           file.path(paths$sup_data, "OPLS-DA", paste0("OPLS-DA_", hypo_name, "_bootstrap_result.json")),
+                           file.path(paths$sup_data, "OPLS-DA", paste0("OPLS-DA_", hypo_name, "_validation_result.json")),
                            pretty = TRUE, auto_unbox = TRUE)
       
       stopApp(list(
         model            = model,
+        preprocessing    = scaled$parameters,
         plot             = p,
         scores           = score_df,
         vip              = dplyr::filter(vip_df, vip_score >= VIP_score_threshold),
@@ -12403,36 +12452,33 @@ run_oplsda_analysis <- function(stats_matrix, hypo_name, paths, chosen_color, VI
 
 #' Perform PLS-DA analysis
 #'
-#' @param stats_matrix Input data matrix centered and scaled : Samples * Features + 1 class column
+#' @param stats_matrix Input data before scaling : Samples * Features + 1 class column
+#' @param scaling_method Scaling choice returned by perform_data_scaling()
+#' @param seed Random seed for permutations and repeated train/test splits
+#' @param n_resamples Number of repeated stratified train/test splits
+#' @param permI Number of permutations for the full model
 #' @param hypo_name Name of the hypothesis currently being analysed (chr)
 #' @param paths Output paths for saving results (list of chr)
 #' @param chosen_color Colours associated with each group name in the hypothesis currently being tested (Named chr)
 #' @param VIP_score_threshold Threshold for VIP scores to filter important features (numeric)
 #' @return List containing PLS-DA results and plots
 
-run_plsda_analysis <- function(stats_matrix, hypo_name, paths, chosen_color, VIP_score_threshold) {
+run_plsda_analysis <- function(stats_matrix, hypo_name, paths, chosen_color, VIP_score_threshold,
+                               scaling_method, seed = 31L, n_resamples = 100L, permI = 1000L) {
   
   # ── Preprocessing ─────────────────────────────────────────────────────────
   
-  X <- stats_matrix[, colnames(stats_matrix) != hypo_name]
-  Y <- as.factor(stats_matrix[, hypo_name])
+  X_raw <- as.matrix(stats_matrix[, colnames(stats_matrix) != hypo_name, drop = FALSE])
+  Y <- droplevels(as.factor(stats_matrix[, hypo_name]))
   
-  nzv <- nearZeroVar(X, names = TRUE)
-  if (length(nzv) > 0) X <- X[, !colnames(X) %in% nzv]
+  scaled <- scale_plsda_split(X_raw, scaling_method)
+  X <- scaled$train
   
   n <- nrow(X)
   
   # ── K selection for internal ropls CV ─────────────────────────────────────
   
-  # This K is used ONLY to select predI (number of predictive components).
-  # It is NOT used to estimate model performance — Bootstrap handles that.
-  #
-  # Rodriguez-Perez 2018 (Analytical and Bioanalytical Chemistry) showed that LOO is the worst
-  # CV estimator in omics data : highest bias AND highest variance, especially
-  # in small sample conditions. Even with n < 30, LOO should be avoided.
-  #
-  # A minimum of 5 folds ensures each validation fold contains enough samples
-  # to produce a stable Q2 estimate for component selection.
+  # Internal CV selects components; held-out BA is estimated separately.
   
   crossval_fold <- dplyr::case_when(
     n >= 100 ~ 10L,
@@ -12442,11 +12488,12 @@ run_plsda_analysis <- function(stats_matrix, hypo_name, paths, chosen_color, VIP
   # ── Main model fitting ────────────────────────────────────────────────────
   
   # predI = NA  : ropls selects the optimal number of predictive components
-  #               automatically using crossval_fold CV and Q2 maximisation.
-  # permI = 1000 : permutation test on the full model to assess significance.
+  #               automatically using crossval_fold internal CV.
+  # permI controls the permutation test on the full model (default: 1000).
   
+  set.seed(seed)
   model <- ropls::opls(X, Y, predI = NA, orthoI = 0, scaleC = "none",
-                       crossvalI = crossval_fold, permI = 1000, algoC = "nipals")
+                       crossvalI = crossval_fold, permI = permI, algoC = "nipals")
   
   # Number of predictive components
   n_comp <- ncol(model@scoreMN)
@@ -12466,7 +12513,7 @@ run_plsda_analysis <- function(stats_matrix, hypo_name, paths, chosen_color, VIP
                          orthoI    = 0,
                          scaleC    = "none",
                          crossvalI = crossval_fold,
-                         permI     = 1000,       
+                         permI     = permI,
                          algoC     = "nipals")
     
     # Re-check : ropls may STILL return an empty object even with predI = 2
@@ -12482,96 +12529,12 @@ run_plsda_analysis <- function(stats_matrix, hypo_name, paths, chosen_color, VIP
     }
   } 
   
-  # ── Bootstrap CV (internal resampling)  ────────────────────────────────────────────
+  # ── Repeated train/test validation and VIP stability ───────────────────────
   
-  bootstrap_cv_plsda <- function(X, Y, crossval_fold, n_comp, n_boot = 100) {
-    
-    n       <- nrow(X)
-    classes <- levels(Y)
-    ba_vec  <- rep(NA_real_, n_boot)
-    
-    for (b in seq_len(n_boot)) {
-      
-      # Stratified bootstrap sampling : sample independently within each class
-      # to guarantee balanced class representation in every training set.
-      
-      train_idx <- unlist(lapply(classes, function(cl) {
-        idx_cl <- which(Y == cl)
-        sample(idx_cl, length(idx_cl), replace = TRUE)
-      }))
-      
-      # OOB samples
-      
-      test_idx <- setdiff(seq_len(n), unique(train_idx))
-      
-      # Safety check : require ALL classes present in OOB (not just >= 2),
-      # so that Balanced Accuracy is always averaged over the same number
-      # of classes across every bootstrap iteration.
-      
-      if (length(test_idx) < 2 || length(unique(Y[test_idx])) < length(classes)) next
-      
-      tryCatch({
-        
-        # Sub-model trained on bootstrap sample only
-        
-        m <- ropls::opls(
-          X[train_idx, , drop = FALSE],
-          Y[train_idx],
-          predI     = n_comp,
-          orthoI    = 0L,
-          scaleC    = "none",
-          crossvalI = crossval_fold,
-          permI     = 0L,
-          algoC     = "nipals"
-        )
-        
-        # Predict OOB samples — these were never seen during sub-model training.
-        
-        pred <- ropls::predict(m, X[test_idx, , drop = FALSE])
-        true <- Y[test_idx]
-        
-        # ── Balanced Accuracy : mean of per-class recall ─────────────────────
-        #
-        # For each class, we compute the proportion of its own OOB samples
-        # correctly predicted (its recall / sensitivity). Averaging these
-        # recalls across classes gives equal weight to every class no matter
-        # its size, unlike raw accuracy which favours the majority class.
-        # For K = 2 classes this is mathematically identical to
-        # (sensitivity + specificity) / 2.
-        
-        recalls_per_class <- rep(NA_real_, length(classes))
-        
-        for (k in seq_along(classes)) {
-          cl          <- classes[k]
-          idx_class_k <- which(true == cl)
-          
-          if (length(idx_class_k) > 0) {
-            recalls_per_class[k] <- mean(pred[idx_class_k] == cl)
-          }
-        }
-        
-        ba_vec[b] <- mean(recalls_per_class, na.rm = TRUE)
-        
-      }, error = function(e) {
-        ba_vec[b] <<- NA_real_
-      })
-    }
-    
-    ba_vec <- ba_vec[!is.na(ba_vec)]
-    
-    list(
-      BA_mean   = round(mean(ba_vec), 3),   # BA_mean   : average balanced accuracy across valid Bootstrap iterations
-      BA_median = round(median(ba_vec), 3), # BA_median : median — more robust to extreme draws than mean
-      BA_sd     = round(sd(ba_vec), 3),     # BA_sd     : standard deviation of BA = variance of the estimator
-      n_valid   = length(ba_vec)            # n_valid   : number of successful iterations (should be close to n_boot)
-    )
-  }
-  
-  # Bootstrapping
-  
-  set.seed(31)
-  boot_results <- bootstrap_cv_plsda(X, Y, crossval_fold, n_comp, n_boot = 100)
-  
+  validation <- validate_plsda(X_raw, Y, scaling_method, VIP_score_threshold,
+                               opls = FALSE, n_resamples = n_resamples, seed = seed)
+  # Keep the existing result key for downstream code; metrics record the method.
+  boot_results <- validation$metrics
   
   # ── Permutation p-value ───────────────────────────────────────────────────
   
@@ -12585,9 +12548,9 @@ run_plsda_analysis <- function(stats_matrix, hypo_name, paths, chosen_color, VIP
   perm_plot <- ggplot(perm_df, aes(Q2)) +
     geom_histogram(bins = 30, fill = "lightblue", color = "black") +
     geom_vline(xintercept = ref_Q2, color = "red", linewidth = 1.2) +
-    labs(title = paste0("Permuted Q2 distribution — p = ",
+    labs(title = paste0("Internal Q2 permutation test — p = ",
                         round(permutation_pval * 100, 2), " %"),
-         x = "Permuted Q2", y = "Count") +
+         x = "Permuted internal Q2", y = "Count") +
     theme_minimal() +
     theme(plot.title = element_text(hjust = 0.5))
   
@@ -12613,6 +12576,7 @@ run_plsda_analysis <- function(stats_matrix, hypo_name, paths, chosen_color, VIP
   # ── VIP ───────────────────────────────────────────────────────────────────
   
   vip_df <- data.frame(feature = names(model@vipVn), vip_score = model@vipVn) %>%
+    dplyr::left_join(validation$vip_stability, by = "feature") %>%
     dplyr::arrange(dplyr::desc(vip_score))
   
   # ── Stats label ───────────────────────────────────────────────────────────
@@ -12623,13 +12587,14 @@ run_plsda_analysis <- function(stats_matrix, hypo_name, paths, chosen_color, VIP
   stats_label <- paste0(
     "R2X : ", round(model@summaryDF$`R2X(cum)`, 3),
     "\nR2Y : ", round(model@summaryDF$`R2Y(cum)`, 3),
-    "\nQ2  : ", round(model@summaryDF$`Q2(cum)`, 3),
-    "\n── Bootstrap CV (", boot_results$n_valid, " iter) ──",
-    "\nBA : ", round(boot_results$BA_mean * 100, 1),
+    "\nInternal Q2 : ", round(model@summaryDF$`Q2(cum)`, 3),
+    "\n── Repeated train/test (", boot_results$n_valid,
+    "/", boot_results$n_resamples, " valid) ──",
+    "\nTest BA (mean ± SD) : ", round(boot_results$BA_mean * 100, 1),
     " ± ", round(boot_results$BA_sd * 100, 1), " %",
     "\n(random chance = ", round(chance_BA * 100, 1), "%)",
-    "\n── Significance ──",
-    "\np(perm) : ", round(permutation_pval, 3)
+    "\n── Q2 permutation test ──",
+    "\np(perm Q2) : ", round(permutation_pval, 3)
   )
   
   # ── UI ────────────────────────────────────────────────────────────────────
@@ -12646,7 +12611,7 @@ run_plsda_analysis <- function(stats_matrix, hypo_name, paths, chosen_color, VIP
         hr(),
         h4("Display options"),
         # Toggle display of the stats annotation (R2X/R2Y/Q2/BA/p) on the score plot
-        checkboxInput("show_stats", "Show metrics (R2X/R2Y/Q2/BA/p)", value = TRUE),
+        checkboxInput("show_stats", "Show metrics (R2X/R2Y/internal Q2/test BA/p Q2)", value = TRUE),
         checkboxInput("show_ellipse", "Confidence ellipses (95%)", value = TRUE),
         
         conditionalPanel(
@@ -12681,7 +12646,9 @@ run_plsda_analysis <- function(stats_matrix, hypo_name, paths, chosen_color, VIP
         tabsetPanel(
           tabPanel("Score plot",   plotOutput("plot",      height = "75vh")),
           tabPanel("Permutations", plotOutput("perm_plot", height = "75vh")),
-          tabPanel("VIP table",    DT::dataTableOutput("vip_table"))
+          tabPanel("VIP table",
+                   helpText("VIP stability (%): percentage of valid training splits with VIP >= the selected threshold."),
+                   DT::dataTableOutput("vip_table"))
         )
       )
     )
@@ -12819,7 +12786,7 @@ run_plsda_analysis <- function(stats_matrix, hypo_name, paths, chosen_color, VIP
     output$vip_table <- DT::renderDataTable(
       DT::datatable(vip_df, rownames = FALSE,
                     options = list(pageLength = 20, searchHighlight = TRUE)) %>%
-        DT::formatRound("vip_score", 2)
+        DT::formatRound(c("vip_score", "vip_stability_pct"), 2)
     )
     
     output$export_status <- renderText({ export_msg() })
@@ -12876,7 +12843,12 @@ run_plsda_analysis <- function(stats_matrix, hypo_name, paths, chosen_color, VIP
                      show_ellipse  = input$show_ellipse,
                      ellipse_type  = input$ellipse_type,
                      ellipse_alpha = input$ellipse_alpha,
-                     show_labels   = input$show_labels)
+                     show_labels   = input$show_labels,
+                     scaling_method = scaling_method,
+                     seed = seed, n_resamples = n_resamples,
+                     train_fraction = boot_results$train_fraction,
+                     n_permutations = permI,
+                     VIP_score_threshold = VIP_score_threshold)
       
       ggsave(file.path(paths$sup_chart, "PLS-DA", paste0("PLS-DA_Permutation_", hypo_name, ".pdf")),
              plot = perm_plot, width = 15, height = 10, bg = "white")
@@ -12895,11 +12867,12 @@ run_plsda_analysis <- function(stats_matrix, hypo_name, paths, chosen_color, VIP
                            file.path(paths$sup_param, "PLS-DA", paste0("PLS-DA_", hypo_name, "_params.json")),
                            pretty = TRUE, auto_unbox = TRUE)
       
-      jsonlite::write_json(boot_results, file.path(paths$sup_data, "PLS-DA", paste0("PLS-DA_", hypo_name, "_bootstrap_result.json")),
+      jsonlite::write_json(boot_results, file.path(paths$sup_data, "PLS-DA", paste0("PLS-DA_", hypo_name, "_validation_result.json")),
                            pretty = TRUE, auto_unbox = TRUE)
       
       stopApp(list(
         model            = model,
+        preprocessing    = scaled$parameters,
         plot             = p,
         scores           = score_df,
         vip              = dplyr::filter(vip_df, vip_score >= VIP_score_threshold),
@@ -13131,7 +13104,7 @@ run_vip_summary_plot <- function(pre_scaled_matrix, matrix_choice, metadata_hypo
 #' @param plsda_vip data.frame (feature, vip_score) from run_plsda_analysis()$all_vip, or NULL
 #' @param oplsda_vip data.frame (feature, vip_score) from run_oplsda_analysis()$all_vip, or NULL
 #' @param Volcano_res Full return value of run_volcano_analysis() for this hypothesis, or NULL.
-#'   Only used when the hypothesis has exactly 2 groups, via Volcano_res$confirmatory$volcano_stats
+#'   Only used when the hypothesis has exactly 2 groups, via Volcano_res$global_univariate$volcano_stats
 #'   (columns feature, padj).
 #' @return List containing the plot, underlying data and export params. NULL if no VIP table available.
 
@@ -13200,8 +13173,8 @@ run_vip_boxplot <- function(pre_scaled_matrix, matrix_choice, metadata_hypo,
   
   # ── Significance stars (2-group hypotheses only, reusing volcano padj) ────
   
-  padj_table <- if (length(groups) == 2 && !is.null(Volcano_res) && !is.null(Volcano_res$confirmatory)) {
-    Volcano_res$confirmatory$volcano_stats %>%
+  padj_table <- if (length(groups) == 2 && !is.null(Volcano_res) && !is.null(Volcano_res$global_univariate)) {
+    Volcano_res$global_univariate$volcano_stats %>%
       dplyr::select(feature, padj) %>%
       dplyr::mutate(stars = dplyr::case_when(
         padj < 0.001 ~ "***",
@@ -13291,7 +13264,7 @@ run_vip_boxplot <- function(pre_scaled_matrix, matrix_choice, metadata_hypo,
         theme(axis.text.x = element_text(angle = 45, hjust = 1),
               plot.title = element_text(face = "bold", hjust = 0.5))
       
-      # Significance stars from the confirmatory volcano padj (2-group hypotheses only)
+      # Significance stars from the global_univariate volcano padj (2-group hypotheses only)
       
       if (!is.null(padj_table) && feat %in% padj_table$feature) {
         
@@ -13398,7 +13371,7 @@ run_vip_boxplot <- function(pre_scaled_matrix, matrix_choice, metadata_hypo,
 #' @param plsda_vip data.frame (feature, vip_score) from run_plsda_analysis()$all_vip, or NULL
 #' @param oplsda_vip data.frame (feature, vip_score) from run_oplsda_analysis()$all_vip, or NULL
 #' @param Volcano_res Full return value of run_volcano_analysis() for this hypothesis, or NULL.
-#'   Only used when the hypothesis has exactly 2 groups, via Volcano_res$confirmatory$volcano_stats
+#'   Only used when the hypothesis has exactly 2 groups, via Volcano_res$global_univariate$volcano_stats
 #'   (columns feature, padj).
 #' @return List containing the plot, underlying data and export params. NULL if no VIP table available.
 #' 
@@ -13441,8 +13414,8 @@ run_vip_heatmap <- function(stats_matrix, matrix_choice, metadata_hypo,
   
   # ── Significance stars (2-group hypotheses only, reusing volcano padj) ────
   
-  padj_table <- if (length(groups) == 2 && !is.null(Volcano_res) && !is.null(Volcano_res$confirmatory)) {
-    Volcano_res$confirmatory$volcano_stats %>%
+  padj_table <- if (length(groups) == 2 && !is.null(Volcano_res) && !is.null(Volcano_res$global_univariate)) {
+    Volcano_res$global_univariate$volcano_stats %>%
       dplyr::select(feature, padj) %>%
       dplyr::mutate(stars = dplyr::case_when(
         padj < 0.001 ~ "***",
@@ -13753,7 +13726,7 @@ run_vip_heatmap <- function(stats_matrix, matrix_choice, metadata_hypo,
       })
       
       observeEvent(input$submit, {
-        
+        req(input$top_n)
         if (input$clustering_method_rows == "ward.D2" && input$clustering_distance_rows != "euclidean") {
           showNotification("Row clustering : Ward.D2 requires euclidean distance", type = "error")
           return()
@@ -13772,6 +13745,10 @@ run_vip_heatmap <- function(stats_matrix, matrix_choice, metadata_hypo,
   }
   
   Parameters <- run_shiny_builder()
+  if (is.null(Parameters$top_n)) {
+    message("[VIP heatmap] No feature count returned. Heatmap export skipped.")
+    return(NULL)
+  }
   
   # ── Save one heatmap per available VIP source ────────────────────────────
   
@@ -14200,10 +14177,10 @@ run_RF_analysis <- function(stats_matrix, hypo_name, paths){
 #-------------------------------------------------------------------------------------------------------------------
 
 
-#' Perform Volcano Plot Analysis — Dual strategy (confirmatory + exploratory)
+#' Perform Volcano Plot Analysis — Dual strategy (global_univariate + exploratory)
 #'
 #' Runs two parallel volcano analyses on the same dataset:
-#'   - Confirmatory : all detected features + BH correction across the full set
+#'   - Global univariate analysis : all detected features + BH correction across the full set
 #'   - Exploratory  : VIP pre-filtered features (PLS-DA / OPLS-DA) + BH correction
 #'                    within the reduced set. Results are hypothesis-generating only
 #'                    (feature selection and testing share the same data).
@@ -14218,7 +14195,7 @@ run_RF_analysis <- function(stats_matrix, hypo_name, paths){
 #' @param Annotation_summary_table             Annotation table (optional)
 #'
 #' @return List with two slots :
-#'   $confirmatory : list(volcano_stats, plot)
+#'   $global_univariate : list(volcano_stats, plot)
 #'   $exploratory  : list(volcano_stats, plot) or NULL if no VIP features
 #'   $parameters   : list(pval_thresh, logfc_thresh, is_paired, ref_group, comp_group)
 
@@ -14335,7 +14312,7 @@ run_volcano_analysis <- function(pre_scaled_matrix,
     return(NULL)
   }
   
-  # ── All features (confirmatory set) ───────────────────────────────────────
+  # ── All features (global_univariate set) ───────────────────────────────────────
   
   all_features <- setdiff(colnames(volcano_df), c("Sample", hypo_name, "PairedID", "Longitudinal_TimePoint"))
   
@@ -14489,7 +14466,7 @@ run_volcano_analysis <- function(pre_scaled_matrix,
       title = paste0("Volcano Stat - Study Design"),
       tags$head(tags$style(HTML(app_css))),
       page_header(paste0("\U0001F52C Study Design \u2014 ", hypo_name),
-                  "Pairing and longitudinal-time settings apply to both the confirmatory and exploratory analyses."),
+                  "Pairing and longitudinal-time settings apply to both the global univariate and exploratory analyses."),
       sidebarLayout(
         sidebarPanel(
           checkboxInput("is_paired",
@@ -14647,7 +14624,7 @@ run_volcano_analysis <- function(pre_scaled_matrix,
     if (length(unique(volcano_df$PairedID)) < 3) {
       warning("Less than 3 complete pairs for hypothesis : ", hypo_name)
       return(list(
-        confirmatory = NULL,
+        global_univariate = NULL,
         exploratory  = NULL,
         skip_reason  = paste0("Paired analysis requested but only ",
                               length(unique(volcano_df$PairedID)),
@@ -14744,7 +14721,7 @@ run_volcano_analysis <- function(pre_scaled_matrix,
   # ══════════════════════════════════════════════════════════════════════════
   
   #' @param features_set Character vector of features to test
-  #' @param label        "confirmatory" or "exploratory" — used for file naming
+  #' @param label        "global_univariate" or "exploratory" — used for file naming
   
   compute_volcano <- function(features_set, label) {
     
@@ -14908,8 +14885,8 @@ run_volcano_analysis <- function(pre_scaled_matrix,
       ""
     }
     
-    subtitle_txt <- if (label == "confirmatory") {
-      paste0("Confirmatory — all ", length(features_set),
+    subtitle_txt <- if (label == "global_univariate") {
+      paste0("Global univariate analysis — all ", length(features_set),
              " features, BH correction across full set",
              power_txt)
     } else {
@@ -15004,9 +14981,9 @@ run_volcano_analysis <- function(pre_scaled_matrix,
   # RUN BOTH ANALYSES
   # ══════════════════════════════════════════════════════════════════════════
   
-  message("── Running confirmatory analysis (all ", length(all_features), " features) ──")
+  message("── Running global univariate analysis (all ", length(all_features), " features) ──")
   
-  result_confirmatory <- compute_volcano(all_features, label = "confirmatory")
+  result_global_univariate <- compute_volcano(all_features, label = "global_univariate")
   result_exploratory <- NULL
   
   if (length(vip_features) > 0) {
@@ -15021,7 +14998,7 @@ run_volcano_analysis <- function(pre_scaled_matrix,
   # ══════════════════════════════════════════════════════════════════════════
   
   return(list(
-    confirmatory = result_confirmatory,
+    global_univariate = result_global_univariate,
     exploratory  = result_exploratory,
     parameters   = list(
       pval_thresh      = pval_thresh,
@@ -15076,7 +15053,7 @@ run_global_stats_dashboard <- function(results, Annotation_summary_table = NULL,
                  # Volcano : two sub-tabs
                  tabPanel("Volcano Plot",
                           tabsetPanel(
-                            tabPanel("Confirmatory (all features)", uiOutput("volcano_plot_confirmatory_ui")),
+                            tabPanel("Global univariate analysis (all features)", uiOutput("volcano_plot_global_univariate_ui")),
                             tabPanel("Exploratory (VIP pre-filtered)", uiOutput("volcano_plot_exploratory_ui"))
                           )
                  )
@@ -15094,7 +15071,7 @@ run_global_stats_dashboard <- function(results, Annotation_summary_table = NULL,
                  # Volcano stats : two sub-tabs
                  tabPanel("Volcano Statistics",
                           tabsetPanel(
-                            tabPanel("Confirmatory (all features)",   uiOutput("volcano_stats_confirmatory_ui")),
+                            tabPanel("Global univariate analysis (all features)",   uiOutput("volcano_stats_global_univariate_ui")),
                             tabPanel("Exploratory (VIP pre-filtered)", uiOutput("volcano_stats_exploratory_ui"))
                           )
                  ),
@@ -15157,7 +15134,7 @@ run_global_stats_dashboard <- function(results, Annotation_summary_table = NULL,
       if (is.null(results$OPLSDA) || is.null(results$OPLSDA$plot)) {
         msg <- if (!is.null(results$OPLSDA$skip_reason))
           paste0("OPLS-DA not built : ", results$OPLSDA$skip_reason,
-                 "  (Q2 = ", results$OPLSDA$Q2, ")")
+                 "  (Internal Q2 = ", results$OPLSDA$Q2, ")")
         else
           "OPLS-DA was not performed for this hypothesis."
         div(style = "color:orange;text-align:center;padding:20px;", msg)
@@ -15167,11 +15144,11 @@ run_global_stats_dashboard <- function(results, Annotation_summary_table = NULL,
     })
     output$oplsda_plot <- renderPlot({ print(results$OPLSDA$plot) })
     
-    # ── Volcano — Confirmatory ────────────────────────────────────────────────
+    # ── Volcano — Global univariate analysis ────────────────────────────────────────────────
     
-    output$volcano_plot_confirmatory_ui <- renderUI({
-      if (is.null(results$VOLCANO) || is.null(results$VOLCANO$confirmatory) ||
-          is.null(results$VOLCANO$confirmatory$plot)) {
+    output$volcano_plot_global_univariate_ui <- renderUI({
+      if (is.null(results$VOLCANO) || is.null(results$VOLCANO$global_univariate) ||
+          is.null(results$VOLCANO$global_univariate$plot)) {
         div(style = "color:red;text-align:center;padding:20px;",
             if (!is.null(results$VOLCANO$skip_reason)) {
               paste0("Volcano analysis not performed : ", results$VOLCANO$skip_reason)
@@ -15183,12 +15160,12 @@ run_global_stats_dashboard <- function(results, Annotation_summary_table = NULL,
           div(style = "color:#555;font-style:italic;text-align:center;padding:8px;",
               icon("info-circle"),
               " All detected features tested — BH correction applied across the full feature set."),
-          plotOutput("volcano_plot_confirmatory", height = "75vh")
+          plotOutput("volcano_plot_global_univariate", height = "75vh")
         )
       }
     })
-    output$volcano_plot_confirmatory <- renderPlot({
-      print(results$VOLCANO$confirmatory$plot)
+    output$volcano_plot_global_univariate <- renderPlot({
+      print(results$VOLCANO$global_univariate$plot)
     })
     
     # ── Volcano — Exploratory ─────────────────────────────────────────────────
@@ -15206,7 +15183,7 @@ run_global_stats_dashboard <- function(results, Annotation_summary_table = NULL,
         tagList(
           div(style = "color:#E65100;font-style:italic;text-align:center;padding:8px;",
               icon("exclamation-triangle"),
-              " VIP pre-filtered features only — hypothesis-generating, not confirmatory (double-dipping)."),
+              " VIP pre-filtered features only — hypothesis-generating, VIP selection uses the same data (double-dipping)."),
           plotOutput("volcano_plot_exploratory", height = "75vh")
         )
       }
@@ -15233,20 +15210,23 @@ run_global_stats_dashboard <- function(results, Annotation_summary_table = NULL,
             h4("Model Metrics"),
             p(strong("R2X : "), results$PLSDA$R2X),
             p(strong("R2Y : "), results$PLSDA$R2Y),
-            p(strong("Q2 : "),  results$PLSDA$Q2),
+            p(strong("Internal Q2 : "),  results$PLSDA$Q2),
             hr(),
-            h4(paste0("Bootstrapping (n valid : ", results$PLSDA$bootstrap_cv$n_valid, ")")),
-            p(strong("BA (mean ± sd) : "),
+            h4(paste0("Repeated train/test (", results$PLSDA$bootstrap_cv$n_valid,
+                      "/", results$PLSDA$bootstrap_cv$n_resamples, " valid)")),
+            p(strong("Test BA (mean ± SD) : "),
               paste0(results$PLSDA$bootstrap_cv$BA_mean, " ± ", results$PLSDA$bootstrap_cv$BA_sd)),
             p(style = "font-size:12px;color:#6B7686;font-style:italic;",
               "BA = Balanced Accuracy: the average per-class classification accuracy, ",
-              "calculated on the out-of-bag (OOB) samples at each bootstrap iteration. ",
+              "calculated on the held-out samples at each resampling iteration. ",
               "Unlike overall accuracy, Balanced Accuracy gives equal weight to each class ",
               "regardless of its size, preventing models that always predict the majority ",
-              "class from achieving artificially inflated performance."),
+              "class from achieving artificially inflated performance. SD describes variation across splits, not a confidence interval."),
             hr(),
-            h4("Significance"),
-            p(strong("Permutation p-value : "), round(results$PLSDA$permutation_pval, 3))
+            h4("Internal Q2 permutation test"),
+            p(strong("Q2 permutation p-value : "), round(results$PLSDA$permutation_pval, 3)),
+            p(style = "font-size:12px;color:#6B7686;font-style:italic;",
+              "This permutation test evaluates internal Q2, not repeated-test BA.")
           ))
         )
       }
@@ -15269,7 +15249,7 @@ run_global_stats_dashboard <- function(results, Annotation_summary_table = NULL,
         return(div(style = "color:orange;text-align:center;padding:20px;",
                    icon("exclamation-triangle"),
                    strong(" OPLS-DA skipped — "), results$OPLSDA$skip_reason, br(),
-                   paste0("Q2 = ", results$OPLSDA$Q2,
+                   paste0("Internal Q2 = ", results$OPLSDA$Q2,
                           "  |  R2Y = ", results$OPLSDA$R2Y,
                           "  |  R2X = ", results$OPLSDA$R2X)))
       }
@@ -15283,20 +15263,23 @@ run_global_stats_dashboard <- function(results, Annotation_summary_table = NULL,
           h4("Model Metrics"),
           p(strong("R2X : "), results$OPLSDA$R2X),
           p(strong("R2Y : "), results$OPLSDA$R2Y),
-          p(strong("Q2 : "),  results$OPLSDA$Q2),
+          p(strong("Internal Q2 : "),  results$OPLSDA$Q2),
           hr(),
-          h4(paste0("Bootstrapping (n valid : ", results$OPLSDA$bootstrap_cv$n_valid, ")")),
-          p(strong("BA (mean ± sd) : "),
+          h4(paste0("Repeated train/test (", results$OPLSDA$bootstrap_cv$n_valid,
+                    "/", results$OPLSDA$bootstrap_cv$n_resamples, " valid)")),
+          p(strong("Test BA (mean ± SD) : "),
             paste0(results$OPLSDA$bootstrap_cv$BA_mean, " ± ", results$OPLSDA$bootstrap_cv$BA_sd)),
           p(style = "font-size:12px;color:#6B7686;font-style:italic;",
             "BA = Balanced Accuracy: the average per-class classification accuracy, ",
-            "calculated on the out-of-bag (OOB) samples at each bootstrap iteration. ",
+            "calculated on the held-out samples at each resampling iteration. ",
             "Unlike overall accuracy, Balanced Accuracy gives equal weight to each class ",
             "regardless of its size, preventing models that always predict the majority ",
-            "class from achieving artificially inflated performance."),
+            "class from achieving artificially inflated performance. SD describes variation across splits, not a confidence interval."),
           hr(),
-          h4("Significance"),
-          p(strong("Permutation p-value : "), round(results$OPLSDA$permutation_pval, 3))
+          h4("Internal Q2 permutation test"),
+          p(strong("Q2 permutation p-value : "), round(results$OPLSDA$permutation_pval, 3)),
+          p(style = "font-size:12px;color:#6B7686;font-style:italic;",
+            "This permutation test evaluates internal Q2, not repeated-test BA.")
         ))
       )
     })
@@ -15338,7 +15321,7 @@ run_global_stats_dashboard <- function(results, Annotation_summary_table = NULL,
     
     # ── Volcano stats — helper UI builder ─────────────────────────────────────
     
-    # Factored out to avoid duplication between confirmatory and exploratory
+    # Factored out to avoid duplication between global_univariate and exploratory
     
     make_volcano_stats_ui <- function(slot_name, output_id, badge_color, badge_text) {
       
@@ -15412,19 +15395,19 @@ run_global_stats_dashboard <- function(results, Annotation_summary_table = NULL,
       )
     }
     
-    # ── Volcano stats — Confirmatory ──────────────────────────────────────────
+    # ── Volcano stats — Global univariate analysis ──────────────────────────────────────────
     
-    output$volcano_stats_confirmatory_ui <- renderUI({
-      make_volcano_stats_ui("confirmatory", "volcano_stats_confirmatory",
+    output$volcano_stats_global_univariate_ui <- renderUI({
+      make_volcano_stats_ui("global_univariate", "volcano_stats_global_univariate",
                             badge_color = "red",
-                            badge_text  = "Confirmatory — All features")
+                            badge_text  = "Global univariate analysis — All features")
     })
     
-    output$volcano_stats_confirmatory <- reactable::renderReactable({
+    output$volcano_stats_global_univariate <- reactable::renderReactable({
       
-      req(!is.null(results$VOLCANO$confirmatory$volcano_stats))
+      req(!is.null(results$VOLCANO$global_univariate$volcano_stats))
       reactable::reactable(
-        results$VOLCANO$confirmatory$volcano_stats,
+        results$VOLCANO$global_univariate$volcano_stats,
         searchable = TRUE, sortable = TRUE,
         defaultPageSize = 10, highlight = TRUE,
         bordered = TRUE, rownames = FALSE,
@@ -15509,11 +15492,11 @@ run_global_stats_dashboard <- function(results, Annotation_summary_table = NULL,
           dplyr::select(feature, rank_OPLSDA)
       }
       
-      # Volcano confirmatory significance flag
-      # Uses the confirmatory slot (all features) — the most rigorous source
-      if (!is.null(results$VOLCANO$confirmatory$volcano_stats) &&
-          nrow(results$VOLCANO$confirmatory$volcano_stats) > 0) {
-        tables$volcano <- results$VOLCANO$confirmatory$volcano_stats %>%
+      # Volcano global_univariate significance flag
+      # Uses the global_univariate slot (all features, without VIP pre-selection)
+      if (!is.null(results$VOLCANO$global_univariate$volcano_stats) &&
+          nrow(results$VOLCANO$global_univariate$volcano_stats) > 0) {
+        tables$volcano <- results$VOLCANO$global_univariate$volcano_stats %>%
           dplyr::select(feature, logFC, Significance) %>%
           dplyr::rename(
             Volcano_Significance  = Significance

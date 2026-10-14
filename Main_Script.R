@@ -1110,6 +1110,7 @@ if (has_annotation) {
 run_all_hypotheses(metadata_table = metadata_table,
                    feature_metadata = feature_metadata,
                    pre_scaled_matrix = pre_scaled_matrix,
+                   scaling_method = scaling_results$scaling_method,
                    Final_output = Final_output, 
                    Final_output_annotated = if (exists("Final_output_annotated")) Final_output_annotated else NULL, 
                    Final_output_annotated_complete = if (exists("Final_output_annotated_complete")) Final_output_annotated_complete else NULL, 
