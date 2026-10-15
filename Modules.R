@@ -5164,8 +5164,10 @@ filter_sample_outliers <- function(input_data,
       names_to  = "Sample",
       values_to = "Sum"
     ) %>%
-    dplyr::arrange(Sum)
+    dplyr::arrange(Sum) %>%
+    dplyr::mutate(Sample_type = ifelse(Sample %in% qc_names, "QC", "Biological"))
   
+  sample_colors <- c("Biological" = "#2c3e50", "QC" = "#e67e22")
   
   # ── IQR-based bounds ───────────────────────────────────────────────
   
@@ -5196,8 +5198,8 @@ filter_sample_outliers <- function(input_data,
                                    ggplot2::aes(x = "", y = log10(Sum + 1))) +
     ggplot2::geom_boxplot(fill = "#aed6f1", alpha = 0.5,
                           outlier.shape = NA, width = 0.4) +
-    ggplot2::geom_jitter(width = 0.08, alpha = 0.7, size = 2,
-                         color = "#2c3e50") +
+    ggplot2::geom_jitter(ggplot2::aes(color = Sample_type),
+                         width = 0.08, alpha = 0.7, size = 2) +
     ggrepel::geom_text_repel(
       #data = dplyr::filter(sample_sums,
       #                     Sum < iqr_stats$Lower_Bound |
@@ -5222,13 +5224,14 @@ filter_sample_outliers <- function(input_data,
       linetype = "dotted", linewidth = 0.9
     ) +
     ggplot2::scale_color_manual(
-      name   = "Reference lines",
-      values = c("Bounds (Q1/Q3 ± 1.5×IQR)" = "#e74c3c",
+      name   = "Samples / reference lines",
+      values = c(sample_colors,
+                 "Bounds (Q1/Q3 ± 1.5×IQR)" = "#e74c3c",
                  "Median" = "#27ae60")
     ) +
     ggplot2::labs(
       title    = "Sample intensity distribution",
-      subtitle = "Each dot = one sample  |  Flagged outliers labelled in red",
+      subtitle = "Each dot = one sample | Orange = QC | Red lines = IQR bounds",
       x        = "Samples",
       y        = "Log10 (Intensity Sum + 1)"
     ) +
@@ -5248,7 +5251,8 @@ filter_sample_outliers <- function(input_data,
     ggplot2::aes(
       x     = reorder(Sample, Sum),
       y     = log10(Sum + 1),
-      color = Sum < iqr_stats$Lower_Bound | Sum > iqr_stats$Upper_Bound
+      color = Sample_type,
+      shape = Sum < iqr_stats$Lower_Bound | Sum > iqr_stats$Upper_Bound
     )
   ) +
     ggplot2::geom_segment(
@@ -5257,9 +5261,13 @@ filter_sample_outliers <- function(input_data,
     ) +
     ggplot2::geom_point(size = 3.5, alpha = 0.9) +
     ggplot2::scale_color_manual(
-      values = c("FALSE" = "#2ecc71", "TRUE" = "#e74c3c"),
-      labels = c("FALSE" = "Normal", "TRUE" = "Outlier"),
-      name   = NULL
+      values = sample_colors,
+      name   = "Sample type"
+    ) +
+    ggplot2::scale_shape_manual(
+      values = c("FALSE" = 16, "TRUE" = 17),
+      labels = c("FALSE" = "Within bounds", "TRUE" = "Outlier"),
+      name   = "IQR status"
     ) +
     ggrepel::geom_text_repel(
       data = dplyr::filter(sample_sums,
@@ -5284,7 +5292,7 @@ filter_sample_outliers <- function(input_data,
     ggplot2::coord_flip() +
     ggplot2::labs(
       title    = "Per-sample intensity sum (sorted)",
-      subtitle = "Red dashes = IQR bounds | Blue dots = median",
+      subtitle = "Orange = QC | Triangles = outliers | Red dashes = IQR bounds | Blue line = median",
       x        = NULL,
       y        = "Log10 (Intensity Sum + 1)"
     ) +
@@ -5316,7 +5324,9 @@ filter_sample_outliers <- function(input_data,
   
   pca_chart <- factoextra::fviz_pca_ind(
     pca_result,
-    col.ind     = "black",
+    habillage   = factor(ifelse(rownames(pca_matrix) %in% qc_names, "QC", "Biological"),
+                         levels = c("Biological", "QC")),
+    palette     = sample_colors,
     addEllipses = TRUE,
     repel       = TRUE,
     title       = "PCA — sample overview (log1p, centred, unscaled)"
@@ -7626,7 +7636,10 @@ run_loess_validation_gui <- function(input_data, metadata_table, qc_names) {
 
 normalize_pqn <- function(input_data, qc_names) {
   
-  # Create reference spectrum from QCs
+  qc_names <- intersect(qc_names, colnames(input_data))
+  if(length(qc_names) == 0) stop("PQN requires QC samples present in the input matrix.")
+  
+  # Create reference spectrum from retained QCs only (one median per feature)
   
   ref_spectra <- apply(input_data[, qc_names, drop = FALSE],
                        1,
@@ -7672,6 +7685,8 @@ normalize_pqn <- function(input_data, qc_names) {
 
 normalize_bridge <- function(input_data, metadata_table, qc_names) {
   
+  qc_names <- intersect(qc_names, colnames(input_data))
+  
   # Check all represented batches before normalizing any batch
   
   batches <- unique(metadata_table$Batch[
@@ -7696,6 +7711,14 @@ normalize_bridge <- function(input_data, metadata_table, qc_names) {
          paste(insufficient_qc, collapse = ", "), ". Normalization stopped.")
   }
   
+  # Shared reference: median intensity of each feature across retained QCs
+  
+  qc_reference <- intersect(qc_names, metadata_table$SampleName[
+    metadata_table$Batch %in% batches
+  ])
+  med_qc_global <- apply(input_data[, qc_reference, drop = FALSE],
+                         1, median, na.rm = TRUE)
+  
   normalized_data <- input_data
   
   # Loop through batches
@@ -7718,7 +7741,7 @@ normalize_bridge <- function(input_data, metadata_table, qc_names) {
       normalized_data[, samples_in_batch] <- sweep(
         input_data[, samples_in_batch, drop = FALSE],
         1,
-        med_qc_batch,
+        med_qc_batch / med_qc_global,
         FUN = "/"
       )
     }
@@ -7746,6 +7769,10 @@ normalize_bridge <- function(input_data, metadata_table, qc_names) {
 perform_normalization <- function(input_data, metadata_table, qc_names,
                                   param_folder, data_folder, chart_folder) {
   
+  n_batches <- length(unique(metadata_table$Batch[
+    metadata_table$SampleName %in% colnames(input_data)
+  ]))
+  
   # Method Selection
   
   select_normalization_method <- function() {
@@ -7757,10 +7784,12 @@ perform_normalization <- function(input_data, metadata_table, qc_names,
           radioButtons(
             "method",
             "Normalization Method :",
-            choices = c(
-              "PQN (Probabilistic Quotient Normalization)",
-              "BRDG (Bridge Normalization)"
-            ),
+            choices = if(n_batches > 1) {
+              c("PQN (Probabilistic Quotient Normalization)",
+                "BRDG (Bridge Normalization)")
+            } else {
+              "PQN (Probabilistic Quotient Normalization)"
+            },
             selected = if(length(unique(metadata_table$Batch)) > 1) {
               "BRDG (Bridge Normalization)"
             }else {
@@ -7772,6 +7801,19 @@ perform_normalization <- function(input_data, metadata_table, qc_names,
         mainPanel(
           h4("Method Recommendation"),
           verbatimTextOutput("recommendation"),
+          hr(),
+          h4("PQN — one dilution factor per sample"),
+          p("A reference profile is built from the median intensity of each feature across the retained QC samples. ",
+            "For each sample, the median of its feature-to-reference ratios estimates a single dilution factor. ",
+            "All intensities in that sample are divided by this factor, preserving their relative proportions; ",
+            "this assumes that most features do not undergo a coordinated biological change."),
+          p(tags$code("Corrected intensity = intensity / median(feature-to-QC ratios)")),
+          h4("BRDG — one correction factor per feature and batch"),
+          p("For each feature, the QC median within each batch is compared with its median across all retained QCs. ",
+            "Every sample in that batch, including QCs, is multiplied by the global-to-batch QC median ratio. ",
+            "This aligns batch QC medians to a shared reference while retaining an intensity scale. ",
+            "At least three retained QCs per batch are required by this workflow, and the same QC pool should be used across batches."),
+          p(tags$code("Corrected intensity = intensity / batch QC median × global QC median")),
           div(
             style = "
     display:flex;
@@ -7791,11 +7833,12 @@ perform_normalization <- function(input_data, metadata_table, qc_names,
                  style = "color:#d4a72c; margin-top:2px; font-size:15px;"),
             
             div(
-              strong("Normalization warning",
+              strong("Interpretation",
                      style = "color:#6b5a2a;"),
               br(),
-              "These methods assume that samples were injected at the same concentration. ",
-              "If concentrations differ across samples, results may be biased."
+              "PQN may remove genuine global biological changes if they are interpreted as dilution. ",
+              "BRDG corrects differences between batches, but does not estimate a separate dilution factor for each sample. ",
+              "Within-batch injection-order drift is handled by the preceding LOESS step, when enabled."
             )
           )
         )
@@ -7806,7 +7849,7 @@ perform_normalization <- function(input_data, metadata_table, qc_names,
       
       output$recommendation <- renderText({
         if(length(unique(metadata_table$Batch)) > 1) {
-          "Multi-batch → BRDG recommended"
+          "Multi-batch → BRDG required in this workflow"
         } else {
           "Single batch → PQN recommended"
         }
@@ -9888,6 +9931,15 @@ perform_annotation_Compound_Discoverer <- function(feature_metadata, data_folder
       ),
       
       mainPanel(
+        h4("How annotations are transferred"),
+        p("Compound Discoverer and this workflow perform feature detection and alignment independently. ",
+          "Their feature identifiers therefore do not provide an exact one-to-one correspondence. ",
+          "Annotations are transferred using proximity in m/z and retention time within the selected tolerances, ",
+          "with the closest feature selected for each Compound Discoverer entry."),
+        p("The script uses the annotation evidence exported by Compound Discoverer; ",
+          "it does not compare MS/MS spectra again during this transfer. ",
+          "Close or co-eluting features may remain ambiguous, so a transferred name is not an independent confirmation of identity."),
+        hr(),
         conditionalPanel(
           condition = "!input.run_annotation",
           h4(tags$b("Annotation :")),
