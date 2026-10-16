@@ -11666,7 +11666,7 @@ run_heatmap_analysis <- function(stats_matrix, metadata_hypo, hypo_name, paths, 
     stats_matrix,
     FUN = function(x, k) kmeans(x, centers = k, nstart = 25),
     K.max = 8,
-    B = 50
+    B = 25
   )
   
   suggested_k <- maxSE(
@@ -13442,6 +13442,11 @@ run_vip_heatmap <- function(stats_matrix, matrix_choice, metadata_hypo,
   
   vip_sources <- list("PLS-DA" = plsda_vip, "OPLS-DA" = oplsda_vip)
   vip_sources <- vip_sources[!sapply(vip_sources, is.null)]
+  vip_sources <- vip_sources[vapply(vip_sources, nrow, integer(1)) > 0L]
+  if (length(vip_sources) == 0L) {
+    warning("[VIP heatmap] All VIP tables are empty. Returning NULL.")
+    return(NULL)
+  }
   
   groups <- levels(droplevels(as.factor(metadata_hypo[[hypo_name]])))
   
@@ -13491,6 +13496,10 @@ run_vip_heatmap <- function(stats_matrix, matrix_choice, metadata_hypo,
   annotations_full <- tibble::column_to_rownames(annotations_full, var = "Sample")
   
   sample_order <- rownames(stats_matrix)[rownames(stats_matrix) %in% rownames(annotations_full)]
+  if (length(sample_order) < 2L) {
+    warning("[VIP heatmap] Fewer than 2 matching samples. Returning NULL.")
+    return(NULL)
+  }
   annotations  <- annotations_full[sample_order, , drop = FALSE]
   
   col_ann             <- HeatmapAnnotation(df = annotations, col = list(Group = chosen_color))
@@ -13500,6 +13509,7 @@ run_vip_heatmap <- function(stats_matrix, matrix_choice, metadata_hypo,
   # ── Feature selection + Gap statistic for a given VIP source ─────────────
   
   build_features <- function(vip_source, top_n) {
+    top_n <- as.integer(top_n)
     
     feats <- vip_sources[[vip_source]] %>%
       dplyr::arrange(dplyr::desc(vip_score)) %>%
@@ -13510,9 +13520,47 @@ run_vip_heatmap <- function(stats_matrix, matrix_choice, metadata_hypo,
       warning("[VIP heatmap] ", nrow(feats) - length(valid_feats),
               " VIP feature(s) not found in stats_matrix and were dropped.")
     }
-    feats <- feats[as.character(feats$feature) %in% valid_feats, ]
+    feats <- feats[as.character(feats$feature) %in% valid_feats, , drop = FALSE]
+    feats <- feats[!duplicated(as.character(feats$feature)), , drop = FALSE]
     
-    mat <- t(as.matrix(stats_matrix[sample_order, valid_feats, drop = FALSE]))
+    # Check columns BEFORE as.matrix(): one character column would coerce
+    # the entire matrix to character and kmeans() would create NA values.
+    values <- as.data.frame(stats_matrix[sample_order, as.character(feats$feature),
+                                         drop = FALSE], check.names = FALSE)
+    numeric_features <- vapply(values, is.numeric, logical(1))
+    if (any(!numeric_features)) {
+      warning("[VIP heatmap] ", vip_source, ": non-numeric feature(s) excluded: ",
+              paste(names(values)[!numeric_features], collapse = ", "), call. = FALSE)
+    }
+    values <- values[, numeric_features, drop = FALSE]
+    if (ncol(values) == 0L) {
+      warning("[VIP heatmap] ", vip_source, ": no matching numeric VIP features. Skipping heatmap.",
+              call. = FALSE)
+      return(NULL)
+    }
+    
+    mat <- t(as.matrix(values))
+    finite_features <- rowSums(!is.finite(mat)) == 0L
+    if (any(!finite_features)) {
+      warning("[VIP heatmap] ", vip_source, ": ", sum(!finite_features),
+              " feature(s) with NA/NaN/Inf excluded from this heatmap: ",
+              paste(rownames(mat)[!finite_features], collapse = ", "), call. = FALSE)
+    }
+    mat <- mat[finite_features, , drop = FALSE]
+    # Preserve exact alignment between matrix rows, labels and VIP bars.
+    feats <- feats[match(rownames(mat), as.character(feats$feature)), , drop = FALSE]
+    finite_vip <- is.finite(feats$vip_score)
+    if (any(!finite_vip)) {
+      warning("[VIP heatmap] ", vip_source, ": non-finite VIP score(s) excluded: ",
+              paste(as.character(feats$feature[!finite_vip]), collapse = ", "), call. = FALSE)
+    }
+    mat <- mat[finite_vip, , drop = FALSE]
+    feats <- feats[finite_vip, , drop = FALSE]
+    if (nrow(mat) == 0L) {
+      warning("[VIP heatmap] ", vip_source, ": no finite VIP features remain. Skipping heatmap.",
+              call. = FALSE)
+      return(NULL)
+    }
     
     row_labels <- rownames(mat)
     if (!is.null(padj_table)) {
@@ -13521,21 +13569,52 @@ run_vip_heatmap <- function(stats_matrix, matrix_choice, metadata_hypo,
       row_labels <- trimws(paste0(row_labels, " (", stars,")"))
     }
     
-    set.seed(31)
-    gap <- clusGap(
-      mat,
-      FUN = function(x, k) kmeans(x, centers = k, nstart = 15),
-      K.max = min(8, nrow(mat) - 1),
-      B = 25
-    )
-    suggested_k <- maxSE(gap$Tab[, "gap"], gap$Tab[, "SE.sim"], method = "firstSEmax")
+    # clusGap requires K.max >= 2. Keep k below the number of distinct
+    # profiles, otherwise within-cluster dispersion can be zero (log(0)).
+    k_max <- min(8L, nrow(mat) - 1L, nrow(unique(mat)) - 1L)
+    suggested_k <- 1L
+    gap_note <- "Gap unavailable: fewer than 3 distinct feature profiles; using 1 cluster."
+    if (k_max >= 2L) {
+      set.seed(31)
+      gap_result <- tryCatch({
+        gap <- cluster::clusGap(
+          mat,
+          FUNcluster = function(x, k) stats::kmeans(x, centers = k, nstart = 15),
+          K.max = k_max,
+          B = 25,
+          verbose = FALSE
+        )
+        if (any(!is.finite(gap$Tab[, c("gap", "SE.sim")]))) {
+          stop("non-finite Gap statistic or standard error")
+        }
+        cluster::maxSE(gap$Tab[, "gap"], gap$Tab[, "SE.sim"], method = "firstSEmax")
+      }, error = function(e) {
+        warning("[VIP heatmap] ", vip_source, ": Gap statistic unavailable (",
+                conditionMessage(e), "); using 1 row cluster.", call. = FALSE)
+        NULL
+      })
+      if (!is.null(gap_result)) {
+        suggested_k <- gap_result
+        gap_note <- "Gap statistic computed."
+      } else {
+        gap_note <- "Gap unavailable: numerical failure; using 1 cluster."
+      }
+    }
     
     list(
       stats_matrix = mat,
       row_labels   = row_labels,
       vip_scores   = round(feats$vip_score, 2),
-      suggested_k  = suggested_k
+      suggested_k  = suggested_k,
+      gap_note     = gap_note
     )
+  }
+  
+  # The preview and each exported VIP source can retain different row counts.
+  bounded_row_km <- function(mat, k) {
+    max_k <- max(1L, min(nrow(mat) - 1L, nrow(unique(mat))))
+    if (length(k) != 1L || !is.finite(k)) return(1L)
+    as.integer(max(1L, min(floor(k), max_k)))
   }
   
   # ── Heatmap object from a feature set + a set of display options ─────────
@@ -13570,8 +13649,8 @@ run_vip_heatmap <- function(stats_matrix, matrix_choice, metadata_hypo,
       column_title = "Samples",
       row_title = "Features",
       row_names_side = "left",
-      cluster_columns = opts$cluster_columns,
-      cluster_rows = opts$cluster_rows,
+      cluster_columns = opts$cluster_columns && ncol(mat) > 1L,
+      cluster_rows = opts$cluster_rows && nrow(mat) > 1L,
       clustering_method_columns = opts$clustering_method_columns,
       clustering_method_rows = opts$clustering_method_rows,
       clustering_distance_columns = opts$clustering_distance_columns,
@@ -13584,7 +13663,7 @@ run_vip_heatmap <- function(stats_matrix, matrix_choice, metadata_hypo,
       column_dend_height = unit(opts$column_dend_height, "cm"),
       row_dend_gp = gpar(col = "black", lwd = 1),
       row_gap = unit(opts$row_gap, "cm"),
-      row_km = opts$row_km,
+      row_km = bounded_row_km(mat, opts$row_km),
       show_parent_dend_line = opts$show_parent_dend_line
     )
   }
@@ -13606,7 +13685,7 @@ run_vip_heatmap <- function(stats_matrix, matrix_choice, metadata_hypo,
           
           radioButtons("vip_source", "VIP source (preview only)", choices = names(vip_sources)),
           
-          sliderInput("top_n", "Number of features", value = min(max_n, 25), min = 2, max = max_n, step = 1),
+          numericInput("top_n", "Number of features", value = min(max_n, 25), min = 1, max = max_n, step = 1),
           
           actionButton("update_features", "Update features", class = "btn-secondary"),
           
@@ -13716,15 +13795,28 @@ run_vip_heatmap <- function(stats_matrix, matrix_choice, metadata_hypo,
     
     server <- function(input, output, session) {
       
-      feat_data <- reactiveValues(stats_matrix = NULL, row_labels = NULL, vip_scores = NULL, suggested_k = 1)
+      feat_data <- reactiveValues(stats_matrix = NULL, row_labels = NULL, vip_scores = NULL,
+                                  suggested_k = 1, gap_note = "")
       
       update_feat_data <- function(vip_source, top_n) {
         feat <- build_features(vip_source, top_n)
+        if (is.null(feat)) {
+          feat_data$stats_matrix <- NULL
+          feat_data$row_labels <- NULL
+          feat_data$vip_scores <- NULL
+          feat_data$suggested_k <- 1L
+          feat_data$gap_note <- "No valid VIP features for this selection."
+          showNotification("No valid VIP features for this selection.", type = "warning")
+          updateNumericInput(session, "row_km", value = 1, min = 1, max = 1)
+          return(invisible(NULL))
+        }
         feat_data$stats_matrix <- feat$stats_matrix
         feat_data$row_labels   <- feat$row_labels
         feat_data$vip_scores   <- feat$vip_scores
         feat_data$suggested_k  <- feat$suggested_k
-        updateNumericInput(session, "row_km", value = feat$suggested_k)
+        feat_data$gap_note     <- feat$gap_note
+        max_k <- max(1L, min(nrow(feat$stats_matrix) - 1L, nrow(unique(feat$stats_matrix))))
+        updateNumericInput(session, "row_km", value = feat$suggested_k, min = 1, max = max_k)
       }
       
       # Eager initial computation : ensures feat_data is populated BEFORE
@@ -13732,12 +13824,13 @@ run_vip_heatmap <- function(stats_matrix, matrix_choice, metadata_hypo,
       update_feat_data(names(vip_sources)[1], min(max_n, 25))
       
       observeEvent(input$update_features, {
+        req(is.finite(input$top_n), input$top_n >= 1)
         update_feat_data(input$vip_source, input$top_n)
       })
       
       output$suggested_k_text <- renderText({
         req(feat_data$suggested_k)
-        paste0("Suggested clusters (Gap statistic) : ", feat_data$suggested_k)
+        paste0("Suggested row clusters: ", feat_data$suggested_k, ". ", feat_data$gap_note)
       })
       
       current_opts <- reactive({
@@ -13779,6 +13872,7 @@ run_vip_heatmap <- function(stats_matrix, matrix_choice, metadata_hypo,
       
       observeEvent(input$submit, {
         req(input$top_n)
+        req(is.finite(input$top_n), input$top_n >= 1)
         if (input$clustering_method_rows == "ward.D2" && input$clustering_distance_rows != "euclidean") {
           showNotification("Row clustering : Ward.D2 requires euclidean distance", type = "error")
           return()
@@ -13814,11 +13908,15 @@ run_vip_heatmap <- function(stats_matrix, matrix_choice, metadata_hypo,
   for (src in names(vip_sources)) {
     
     feat <- build_features(src, Parameters$top_n)
-    hm   <- make_heatmap(feat$stats_matrix, feat$row_labels, feat$vip_scores, Parameters)
+    if (is.null(feat)) next
+    opts_src <- modifyList(Parameters, list(row_km = bounded_row_km(feat$stats_matrix, Parameters$row_km)))
+    hm   <- make_heatmap(feat$stats_matrix, feat$row_labels, feat$vip_scores, opts_src)
     
-    params_src <- modifyList(Parameters, list(
+    params_src <- modifyList(opts_src, list(
       vip_source = src,
       features   = rownames(feat$stats_matrix),
+      suggested_k = feat$suggested_k,
+      gap_note = feat$gap_note,
       name = "Scaled value",
       column_title = "Samples",
       row_title = "Features",
